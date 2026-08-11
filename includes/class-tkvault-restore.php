@@ -1,30 +1,30 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class WP_Vault_Restore {
+class TKVault_Restore {
 
 	public function run( int $backup_id, string $type = 'full' ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'forbidden', __( '権限がありません。', 'wp-vault' ) );
+			return new WP_Error( 'forbidden', __( 'You do not have permission to do that.', 'takumi-vault' ) );
 		}
 
-		$record = WP_Vault_DB::get_backup_by_id( $backup_id );
+		$record = TKVault_DB::get_backup_by_id( $backup_id );
 		if ( ! $record ) {
-			return new WP_Error( 'not_found', __( 'バックアップが見つかりません。', 'wp-vault' ) );
+			return new WP_Error( 'not_found', __( 'Backup not found.', 'takumi-vault' ) );
 		}
 
-		$backup_dir = wpvault_get_backup_dir();
+		$backup_dir = tkvault_get_backup_dir();
 		$filepath   = trailingslashit( $backup_dir ) . $record->filename;
 
 		if ( ! file_exists( $filepath ) ) {
-			return new WP_Error( 'file_missing', __( 'バックアップファイルが存在しません。', 'wp-vault' ) );
+			return new WP_Error( 'file_missing', __( 'The backup file does not exist.', 'takumi-vault' ) );
 		}
 
 		// Prevent path traversal.
 		$real_backup_dir = realpath( $backup_dir );
 		$real_filepath   = realpath( $filepath );
 		if ( false === $real_filepath || 0 !== strpos( $real_filepath, $real_backup_dir ) ) {
-			return new WP_Error( 'invalid_path', __( '不正なファイルパスです。', 'wp-vault' ) );
+			return new WP_Error( 'invalid_path', __( 'Invalid file path.', 'takumi-vault' ) );
 		}
 
 		$record_type = sanitize_text_field( $record->type );
@@ -43,18 +43,18 @@ class WP_Vault_Restore {
 			}
 		}
 
-		do_action( 'wpvault_restore_completed', $backup_id, $type );
+		do_action( 'tkvault_restore_completed', $backup_id, $type );
 
 		return true;
 	}
 
 	private function restore_database( string $zip_path ) {
-		$tmp_dir = get_temp_dir() . 'wpvault_restore_' . uniqid();
+		$tmp_dir = get_temp_dir() . 'tkvault_restore_' . uniqid();
 		wp_mkdir_p( $tmp_dir );
 
 		$zip = new ZipArchive();
 		if ( true !== $zip->open( $zip_path ) ) {
-			return new WP_Error( 'zip_open_failed', __( 'ZIPファイルを開けませんでした。', 'wp-vault' ) );
+			return new WP_Error( 'zip_open_failed', __( 'Could not open the ZIP file.', 'takumi-vault' ) );
 		}
 		$zip->extractTo( $tmp_dir );
 		$zip->close();
@@ -62,14 +62,14 @@ class WP_Vault_Restore {
 		$sql_files = glob( trailingslashit( $tmp_dir ) . '*.sql' );
 		if ( empty( $sql_files ) ) {
 			$this->remove_dir( $tmp_dir );
-			return new WP_Error( 'no_sql', __( 'SQLファイルが見つかりません。', 'wp-vault' ) );
+			return new WP_Error( 'no_sql', __( 'No SQL file was found in the archive.', 'takumi-vault' ) );
 		}
 
 		$sql_file = $sql_files[0];
 		$mysql    = $this->find_mysql();
 		if ( ! $mysql ) {
 			$this->remove_dir( $tmp_dir );
-			return new WP_Error( 'mysql_not_found', __( 'mysql コマンドが見つかりません。', 'wp-vault' ) );
+			return new WP_Error( 'mysql_not_found', __( 'The mysql command was not found.', 'takumi-vault' ) );
 		}
 
 		$cmd = sprintf(
@@ -86,7 +86,7 @@ class WP_Vault_Restore {
 		$this->remove_dir( $tmp_dir );
 
 		if ( 0 !== $return_code ) {
-			return new WP_Error( 'mysql_import_failed', __( 'データベースのリストアに失敗しました。', 'wp-vault' ) );
+			return new WP_Error( 'mysql_import_failed', __( 'Database restore failed.', 'takumi-vault' ) );
 		}
 
 		return true;
@@ -95,7 +95,7 @@ class WP_Vault_Restore {
 	private function restore_files( string $zip_path ) {
 		$zip = new ZipArchive();
 		if ( true !== $zip->open( $zip_path ) ) {
-			return new WP_Error( 'zip_open_failed', __( 'ZIPファイルを開けませんでした。', 'wp-vault' ) );
+			return new WP_Error( 'zip_open_failed', __( 'Could not open the ZIP file.', 'takumi-vault' ) );
 		}
 
 		$extract_to = dirname( WP_CONTENT_DIR );
@@ -120,13 +120,13 @@ class WP_Vault_Restore {
 		if ( ! is_dir( $dir ) ) {
 			return;
 		}
-		$files = new RecursiveIteratorIterator(
-			new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS ),
-			RecursiveIteratorIterator::CHILD_FIRST
-		);
-		foreach ( $files as $file ) {
-			$file->isDir() ? rmdir( $file->getRealPath() ) : unlink( $file->getRealPath() );
+
+		global $wp_filesystem;
+		if ( ! $wp_filesystem ) {
+			require_once ABSPATH . 'wp-admin/includes/file.php';
+			WP_Filesystem();
 		}
-		rmdir( $dir );
+
+		$wp_filesystem->delete( $dir, true );
 	}
 }

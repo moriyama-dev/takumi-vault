@@ -1,0 +1,352 @@
+# Copyright (C) 2026 Yoshiro Moriyama (Takumi Web Services)
+# This file is distributed under the GPLv2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: Takumi Vault - Backup & Restore Manager 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/takumi-vault\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-08-11T15:59:30+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: takumi-vault\n"
+
+#. Plugin Name of the plugin
+#: takumi-vault.php
+msgid "Takumi Vault - Backup & Restore Manager"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: takumi-vault.php
+msgid "https://takumi.ca"
+msgstr ""
+
+#. Description of the plugin
+#: takumi-vault.php
+msgid "A clean, client-friendly backup & restore manager for WordPress. Back up your database and files, and restore them with a single click."
+msgstr ""
+
+#. Author of the plugin
+#: takumi-vault.php
+msgid "Yoshiro Moriyama (Takumi Web Services)"
+msgstr ""
+
+#: admin/views/backup-list.php:3
+#: includes/class-tkvault-admin.php:38
+#: includes/class-tkvault-admin.php:39
+msgid "Backups"
+msgstr ""
+
+#: admin/views/backup-list.php:14
+msgid "There are no backups yet."
+msgstr ""
+
+#: admin/views/backup-list.php:19
+msgid "Date"
+msgstr ""
+
+#: admin/views/backup-list.php:20
+msgid "File"
+msgstr ""
+
+#: admin/views/backup-list.php:21
+msgid "Type"
+msgstr ""
+
+#: admin/views/backup-list.php:22
+msgid "Size"
+msgstr ""
+
+#: admin/views/backup-list.php:23
+msgid "Note"
+msgstr ""
+
+#: admin/views/backup-list.php:24
+msgid "Actions"
+msgstr ""
+
+#: admin/views/backup-list.php:37
+msgid "Download"
+msgstr ""
+
+#: admin/views/backup-list.php:40
+msgid "Restore"
+msgstr ""
+
+#: admin/views/backup-list.php:43
+msgid "Delete"
+msgstr ""
+
+#: admin/views/dashboard.php:3
+#: includes/class-tkvault-admin.php:18
+#: includes/class-tkvault-admin.php:19
+msgid "Takumi Vault"
+msgstr ""
+
+#: admin/views/dashboard.php:8
+msgid "Last backup"
+msgstr ""
+
+#: admin/views/dashboard.php:20
+msgid "No backups yet."
+msgstr ""
+
+#: admin/views/dashboard.php:26
+msgid "Next scheduled run"
+msgstr ""
+
+#: admin/views/dashboard.php:32
+msgid "Not scheduled"
+msgstr ""
+
+#: admin/views/dashboard.php:38
+#: admin/views/settings.php:16
+msgid "Backup destination"
+msgstr ""
+
+#. translators: %s: human-readable file size, e.g. "24 MB"
+#: admin/views/dashboard.php:50
+#, php-format
+msgid "Backups on disk: %s"
+msgstr ""
+
+#. translators: %s: human-readable free space, e.g. "3.4 GB"
+#: admin/views/dashboard.php:64
+#, php-format
+msgid "Free space: %s"
+msgstr ""
+
+#: admin/views/dashboard.php:70
+msgid "Free space: unavailable on this host."
+msgstr ""
+
+#: admin/views/dashboard.php:78
+msgid "Back up now"
+msgstr ""
+
+#: admin/views/dashboard.php:80
+msgid "What to include"
+msgstr ""
+
+#: admin/views/dashboard.php:82
+msgid "Database and files"
+msgstr ""
+
+#: admin/views/dashboard.php:83
+msgid "Database only"
+msgstr ""
+
+#: admin/views/dashboard.php:84
+msgid "Files only"
+msgstr ""
+
+#: admin/views/dashboard.php:86
+msgid "Note (optional)"
+msgstr ""
+
+#: admin/views/dashboard.php:87
+msgid "e.g. before the theme change"
+msgstr ""
+
+#: admin/views/dashboard.php:89
+#: includes/class-tkvault-admin.php:82
+msgid "Start backup"
+msgstr ""
+
+#: admin/views/settings.php:3
+#: includes/class-tkvault-admin.php:47
+#: includes/class-tkvault-admin.php:48
+msgid "Settings"
+msgstr ""
+
+#: admin/views/settings.php:6
+msgid "Settings saved."
+msgstr ""
+
+#: admin/views/settings.php:23
+msgid "Choose a directory your web server cannot serve. Takumi Vault checks the destination before writing to it."
+msgstr ""
+
+#: admin/views/settings.php:29
+msgid "Automatic backups"
+msgstr ""
+
+#: admin/views/settings.php:36
+msgid "Off"
+msgstr ""
+
+#: admin/views/settings.php:37
+msgid "Daily"
+msgstr ""
+
+#: admin/views/settings.php:38
+#: includes/class-tkvault-scheduler.php:14
+msgid "Weekly"
+msgstr ""
+
+#: admin/views/settings.php:39
+#: includes/class-tkvault-scheduler.php:18
+msgid "Monthly"
+msgstr ""
+
+#: admin/views/settings.php:55
+msgid "Backups to keep"
+msgstr ""
+
+#: admin/views/settings.php:61
+msgid "Older backups beyond this count are deleted automatically."
+msgstr ""
+
+#: admin/views/settings.php:66
+msgid "Notification email"
+msgstr ""
+
+#: admin/views/settings.php:75
+msgid "Success notices"
+msgstr ""
+
+#: admin/views/settings.php:80
+msgid "Email me when a backup finishes"
+msgstr ""
+
+#: admin/views/settings.php:86
+msgid "Save settings"
+msgstr ""
+
+#: includes/class-tkvault-admin.php:29
+#: includes/class-tkvault-admin.php:30
+msgid "Dashboard"
+msgstr ""
+
+#: includes/class-tkvault-admin.php:79
+msgid "Restoring will overwrite your current data. Continue?"
+msgstr ""
+
+#: includes/class-tkvault-admin.php:80
+msgid "Delete this backup?"
+msgstr ""
+
+#: includes/class-tkvault-admin.php:81
+msgid "Working..."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:83
+msgid "Done."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:84
+msgid "Something went wrong."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:92
+#: includes/class-tkvault-admin.php:99
+#: includes/class-tkvault-admin.php:106
+msgid "You do not have permission to access this page."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:114
+#: includes/class-tkvault-admin.php:133
+#: includes/class-tkvault-admin.php:156
+#: includes/class-tkvault-admin.php:206
+#: includes/class-tkvault-admin.php:234
+#: includes/class-tkvault-backup.php:8
+#: includes/class-tkvault-restore.php:8
+msgid "You do not have permission to do that."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:127
+msgid "Backup complete."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:140
+#: includes/class-tkvault-admin.php:161
+msgid "Invalid backup ID."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:150
+msgid "Restore complete."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:173
+msgid "Deleted."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:214
+#: includes/class-tkvault-restore.php:13
+msgid "Backup not found."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:219
+msgid "Backup file not found."
+msgstr ""
+
+#: includes/class-tkvault-backup.php:68
+msgid "mysqldump was not found."
+msgstr ""
+
+#: includes/class-tkvault-backup.php:85
+msgid "Database backup failed."
+msgstr ""
+
+#: includes/class-tkvault-backup.php:104
+#: includes/class-tkvault-backup.php:139
+msgid "Could not create the ZIP file."
+msgstr ""
+
+#: includes/class-tkvault-restore.php:20
+msgid "The backup file does not exist."
+msgstr ""
+
+#: includes/class-tkvault-restore.php:27
+msgid "Invalid file path."
+msgstr ""
+
+#: includes/class-tkvault-restore.php:57
+#: includes/class-tkvault-restore.php:98
+msgid "Could not open the ZIP file."
+msgstr ""
+
+#: includes/class-tkvault-restore.php:65
+msgid "No SQL file was found in the archive."
+msgstr ""
+
+#: includes/class-tkvault-restore.php:72
+msgid "The mysql command was not found."
+msgstr ""
+
+#: includes/class-tkvault-restore.php:89
+msgid "Database restore failed."
+msgstr ""
+
+#: includes/class-tkvault-scheduler.php:45
+msgid "Scheduled automatic backup"
+msgstr ""
+
+#: includes/class-tkvault-scheduler.php:76
+msgid "Backup completed"
+msgstr ""
+
+#: includes/class-tkvault-scheduler.php:77
+msgid "The scheduled Takumi Vault backup completed successfully."
+msgstr ""
+
+#: includes/class-tkvault-scheduler.php:83
+msgid "Backup failed"
+msgstr ""
+
+#. translators: %s: error message
+#: includes/class-tkvault-scheduler.php:86
+#, php-format
+msgid ""
+"The Takumi Vault backup failed.\n"
+"\n"
+"Error: %s"
+msgstr ""
+
+#: takumi-vault.php:56
+msgid "Could not create the backup directory."
+msgstr ""

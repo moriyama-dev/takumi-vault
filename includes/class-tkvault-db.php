@@ -1,12 +1,12 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class WP_Vault_DB {
+class TKVault_DB {
 
 	public static function create_tables() {
 		global $wpdb;
 
-		$table_name      = $wpdb->prefix . 'wpvault_backups';
+		$table_name      = $wpdb->prefix . 'tkvault_backups';
 		$charset_collate = $wpdb->get_charset_collate();
 
 		$sql = "CREATE TABLE {$table_name} (
@@ -26,13 +26,13 @@ class WP_Vault_DB {
 
 	public static function drop_tables() {
 		global $wpdb;
-		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}wpvault_backups" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		$wpdb->query( "DROP TABLE IF EXISTS {$wpdb->prefix}tkvault_backups" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
 	public static function insert_backup( array $data ) {
 		global $wpdb;
 		$wpdb->insert( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prefix . 'wpvault_backups',
+			$wpdb->prefix . 'tkvault_backups',
 			array(
 				'filename' => sanitize_text_field( $data['filename'] ),
 				'type'     => sanitize_text_field( $data['type'] ),
@@ -50,7 +50,7 @@ class WP_Vault_DB {
 		$offset = ( $page - 1 ) * $per_page;
 		return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}wpvault_backups ORDER BY created_at DESC LIMIT %d OFFSET %d",
+				"SELECT * FROM {$wpdb->prefix}tkvault_backups ORDER BY created_at DESC LIMIT %d OFFSET %d",
 				$per_page,
 				$offset
 			)
@@ -59,20 +59,25 @@ class WP_Vault_DB {
 
 	public static function get_total_count() {
 		global $wpdb;
-		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}wpvault_backups" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+		return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}tkvault_backups" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+	}
+
+	public static function get_total_size() {
+		global $wpdb;
+		return (int) $wpdb->get_var( "SELECT COALESCE(SUM(size),0) FROM {$wpdb->prefix}tkvault_backups" ); // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 	}
 
 	public static function get_backup_by_id( int $id ) {
 		global $wpdb;
 		return $wpdb->get_row( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prepare( "SELECT * FROM {$wpdb->prefix}wpvault_backups WHERE id = %d", $id )
+			$wpdb->prepare( "SELECT * FROM {$wpdb->prefix}tkvault_backups WHERE id = %d", $id )
 		);
 	}
 
 	public static function delete_backup_record( int $id ) {
 		global $wpdb;
 		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
-			$wpdb->prefix . 'wpvault_backups',
+			$wpdb->prefix . 'tkvault_backups',
 			array( 'id' => $id ),
 			array( '%d' )
 		);

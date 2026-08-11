@@ -1,14 +1,14 @@
 <?php
 defined( 'ABSPATH' ) || exit;
 
-class WP_Vault_Backup {
+class TKVault_Backup {
 
 	public function run( string $type = 'full', string $note = '' ) {
 		if ( ! current_user_can( 'manage_options' ) ) {
-			return new WP_Error( 'forbidden', __( '権限がありません。', 'wp-vault' ) );
+			return new WP_Error( 'forbidden', __( 'You do not have permission to do that.', 'takumi-vault' ) );
 		}
 
-		$backup_dir = wpvault_ensure_backup_dir();
+		$backup_dir = tkvault_ensure_backup_dir();
 		if ( is_wp_error( $backup_dir ) ) {
 			return $backup_dir;
 		}
@@ -34,7 +34,7 @@ class WP_Vault_Backup {
 
 		foreach ( $results as $result_type => $file_path ) {
 			$size = file_exists( $file_path ) ? filesize( $file_path ) : 0;
-			WP_Vault_DB::insert_backup(
+			TKVault_DB::insert_backup(
 				array(
 					'filename' => basename( $file_path ),
 					'type'     => $result_type,
@@ -45,7 +45,7 @@ class WP_Vault_Backup {
 			);
 		}
 
-		do_action( 'wpvault_backup_completed', $type, $results );
+		do_action( 'tkvault_backup_completed', $type, $results );
 
 		return $results;
 	}
@@ -65,7 +65,7 @@ class WP_Vault_Backup {
 
 		$mysqldump = $this->find_mysqldump();
 		if ( ! $mysqldump ) {
-			return new WP_Error( 'mysqldump_not_found', __( 'mysqldump が見つかりません。', 'wp-vault' ) );
+			return new WP_Error( 'mysqldump_not_found', __( 'mysqldump was not found.', 'takumi-vault' ) );
 		}
 
 		// Build command; password passed via env to avoid exposure in process list.
@@ -82,11 +82,11 @@ class WP_Vault_Backup {
 		exec( $cmd, $output, $return_code ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.system_calls_exec
 
 		if ( 0 !== $return_code ) {
-			return new WP_Error( 'mysqldump_failed', __( 'データベースのバックアップに失敗しました。', 'wp-vault' ) );
+			return new WP_Error( 'mysqldump_failed', __( 'Database backup failed.', 'takumi-vault' ) );
 		}
 
 		$zip_result = $this->zip_file( $filepath, $zip_path );
-		@unlink( $filepath ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		wp_delete_file( $filepath );
 
 		if ( is_wp_error( $zip_result ) ) {
 			return $zip_result;
@@ -101,7 +101,7 @@ class WP_Vault_Backup {
 
 		$zip = new ZipArchive();
 		if ( true !== $zip->open( $zip_path, ZipArchive::CREATE ) ) {
-			return new WP_Error( 'zip_open_failed', __( 'ZIPファイルの作成に失敗しました。', 'wp-vault' ) );
+			return new WP_Error( 'zip_open_failed', __( 'Could not create the ZIP file.', 'takumi-vault' ) );
 		}
 
 		$this->add_directory_to_zip( $zip, $wp_content, dirname( $wp_content ) );
@@ -121,7 +121,7 @@ class WP_Vault_Backup {
 			$relative    = ltrim( str_replace( $base, '', $file_path ), DIRECTORY_SEPARATOR );
 
 			// Skip the backup directory itself to avoid recursion.
-			if ( 0 === strpos( $file_path, wpvault_get_backup_dir() ) ) {
+			if ( 0 === strpos( $file_path, tkvault_get_backup_dir() ) ) {
 				continue;
 			}
 
@@ -136,7 +136,7 @@ class WP_Vault_Backup {
 	private function zip_file( string $source, string $destination ) {
 		$zip = new ZipArchive();
 		if ( true !== $zip->open( $destination, ZipArchive::CREATE ) ) {
-			return new WP_Error( 'zip_open_failed', __( 'ZIPファイルの作成に失敗しました。', 'wp-vault' ) );
+			return new WP_Error( 'zip_open_failed', __( 'Could not create the ZIP file.', 'takumi-vault' ) );
 		}
 		$zip->addFile( $source, basename( $source ) );
 		$zip->close();
@@ -158,7 +158,7 @@ class WP_Vault_Backup {
 		global $wpdb;
 		return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}wpvault_backups ORDER BY created_at DESC LIMIT 9999 OFFSET %d",
+				"SELECT * FROM {$wpdb->prefix}tkvault_backups ORDER BY created_at DESC LIMIT 9999 OFFSET %d",
 				$keep
 			)
 		);

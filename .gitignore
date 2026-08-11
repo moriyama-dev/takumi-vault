@@ -13,6 +13,13 @@ package-lock.json
 
 # Build artifacts
 *.zip
+dist/
+
+# Translations: ship languages/wp-vault.pot only.
+# Bundling .po/.mo breaks the WordPress.org guidelines - translation is
+# handled by translate.wordpress.org.
+languages/*.po
+languages/*.mo
 
 # WordPress
 /wp-content/

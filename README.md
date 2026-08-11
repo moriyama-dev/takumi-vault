@@ -1,4 +1,4 @@
-# WP Vault — Backup & Restore Manager
+# Takumi Vault — Backup & Restore Manager
 
 **Back up a WordPress database and files, and restore them in one click — no command line, no third-party account.**
 
@@ -13,7 +13,7 @@ Built to hand to a non-technical client: one admin menu, one button, backups sto
 
 ## Why this exists
 
-Most backup plugins either push you toward a paid cloud tier or expose enough options to be dangerous in a client's hands. WP Vault does the boring, essential 90%: take a backup, keep a sensible number of them, restore one, and tell someone if it failed.
+Most backup plugins either push you toward a paid cloud tier or expose enough options to be dangerous in a client's hands. Takumi Vault does the boring, essential 90%: take a backup, keep a sensible number of them, restore one, and tell someone if it failed.
 
 ## Features
 
@@ -29,13 +29,13 @@ Most backup plugins either push you toward a paid cloud tier or expose enough op
 ## Architecture
 
 ```
-wp-vault.php                      Bootstrap, activation, admin menu
+takumi-vault.php                      Bootstrap, activation, admin menu
 includes/
-  class-wp-vault-backup.php       Backup orchestration (DB + files, zip, pruning)
-  class-wp-vault-restore.php      Restore from an archive
-  class-wp-vault-db.php           mysqldump handling and DB import
-  class-wp-vault-scheduler.php    WP-Cron scheduling for automatic backups
-  class-wp-vault-admin.php        Settings API screens and actions
+  class-takumi-vault-backup.php       Backup orchestration (DB + files, zip, pruning)
+  class-takumi-vault-restore.php      Restore from an archive
+  class-takumi-vault-db.php           mysqldump handling and DB import
+  class-takumi-vault-scheduler.php    WP-Cron scheduling for automatic backups
+  class-takumi-vault-admin.php        Settings API screens and actions
 admin/views/                      Dashboard, backup list, settings templates
 uninstall.php                     Teardown
 ```
@@ -44,16 +44,16 @@ Admin actions are capability- and nonce-checked; paths are validated before any 
 
 ## Installation
 
-1. Upload the `wp-vault` folder to `/wp-content/plugins/`.
+1. Upload the `takumi-vault` folder to `/wp-content/plugins/`.
 2. Activate via **Plugins › Installed Plugins**.
-3. Open **WP Vault** in the admin menu.
-4. Optionally adjust the backup directory and schedule under **WP Vault › Settings**.
+3. Open **Takumi Vault** in the admin menu.
+4. Optionally adjust the backup directory and schedule under **Takumi Vault › Settings**.
 
 ## Requirements & FAQ
 
 **Where are backups stored?** By default in a `_backup` directory one level above the WordPress install — outside the web root. Configurable in Settings.
 
-**Does it need WP-CLI?** No. WP Vault calls `mysqldump` directly when available; if it isn't present on the server, the plugin reports that clearly rather than writing a partial dump.
+**Does it need WP-CLI?** No. Takumi Vault calls `mysqldump` directly when available; if it isn't present on the server, the plugin reports that clearly rather than writing a partial dump.
 
 **Is it safe on a live site?** Yes. Files are zipped after the copy, keeping the maintenance window short.
 

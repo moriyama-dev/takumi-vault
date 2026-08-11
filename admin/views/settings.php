@@ -1,49 +1,49 @@
 <?php defined( 'ABSPATH' ) || exit; ?>
-<div class="wrap wpvault-wrap">
-	<h1><?php esc_html_e( '設定', 'wp-vault' ); ?></h1>
+<div class="wrap tkvault-wrap">
+	<h1><?php esc_html_e( 'Settings', 'takumi-vault' ); ?></h1>
 
 	<?php if ( isset( $_GET['updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
-		<div class="notice notice-success is-dismissible"><p><?php esc_html_e( '設定を保存しました。', 'wp-vault' ); ?></p></div>
+		<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'takumi-vault' ); ?></p></div>
 	<?php endif; ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
-		<?php wp_nonce_field( 'wpvault_settings' ); ?>
-		<input type="hidden" name="action" value="wpvault_save_settings">
+		<?php wp_nonce_field( 'tkvault_settings' ); ?>
+		<input type="hidden" name="action" value="tkvault_save_settings">
 
 		<table class="form-table">
 			<tr>
 				<th scope="row">
-					<label for="wpvault_backup_dir"><?php esc_html_e( 'バックアップ保存先', 'wp-vault' ); ?></label>
+					<label for="tkvault_backup_dir"><?php esc_html_e( 'Backup destination', 'takumi-vault' ); ?></label>
 				</th>
 				<td>
-					<input type="text" id="wpvault_backup_dir" name="wpvault_backup_dir"
-						value="<?php echo esc_attr( wpvault_get_backup_dir() ); ?>"
+					<input type="text" id="tkvault_backup_dir" name="tkvault_backup_dir"
+						value="<?php echo esc_attr( tkvault_get_backup_dir() ); ?>"
 						class="large-text">
 					<p class="description">
-						<?php esc_html_e( 'デフォルトはWebルート外（dirname(ABSPATH)/_backup）。Webサーバーから直接アクセスできない場所を推奨します。', 'wp-vault' ); ?>
+						<?php esc_html_e( 'Choose a directory your web server cannot serve. Takumi Vault checks the destination before writing to it.', 'takumi-vault' ); ?>
 					</p>
 				</td>
 			</tr>
 			<tr>
 				<th scope="row">
-					<label for="wpvault_schedule"><?php esc_html_e( '自動バックアップ', 'wp-vault' ); ?></label>
+					<label for="tkvault_schedule"><?php esc_html_e( 'Automatic backups', 'takumi-vault' ); ?></label>
 				</th>
 				<td>
-					<select id="wpvault_schedule" name="wpvault_schedule">
+					<select id="tkvault_schedule" name="tkvault_schedule">
 						<?php
-						$current = get_option( 'wpvault_schedule', 'none' );
-						$options = array(
-							'none'             => __( '無効', 'wp-vault' ),
-							'daily'            => __( '毎日', 'wp-vault' ),
-							'wpvault_weekly'   => __( '毎週', 'wp-vault' ),
-							'wpvault_monthly'  => __( '毎月', 'wp-vault' ),
+						$tkvault_current = get_option( 'tkvault_schedule', 'none' );
+						$tkvault_options = array(
+							'none'            => __( 'Off', 'takumi-vault' ),
+							'daily'           => __( 'Daily', 'takumi-vault' ),
+							'tkvault_weekly'  => __( 'Weekly', 'takumi-vault' ),
+							'tkvault_monthly' => __( 'Monthly', 'takumi-vault' ),
 						);
-						foreach ( $options as $val => $label ) {
+						foreach ( $tkvault_options as $tkvault_val => $tkvault_label ) {
 							printf(
 								'<option value="%s"%s>%s</option>',
-								esc_attr( $val ),
-								selected( $current, $val, false ),
-								esc_html( $label )
+								esc_attr( $tkvault_val ),
+								selected( $tkvault_current, $tkvault_val, false ),
+								esc_html( $tkvault_label )
 							);
 						}
 						?>
@@ -52,37 +52,37 @@
 			</tr>
 			<tr>
 				<th scope="row">
-					<label for="wpvault_keep_generations"><?php esc_html_e( '世代管理（保持する件数）', 'wp-vault' ); ?></label>
+					<label for="tkvault_keep_generations"><?php esc_html_e( 'Backups to keep', 'takumi-vault' ); ?></label>
 				</th>
 				<td>
-					<input type="number" id="wpvault_keep_generations" name="wpvault_keep_generations"
-						value="<?php echo esc_attr( get_option( 'wpvault_keep_generations', 10 ) ); ?>"
+					<input type="number" id="tkvault_keep_generations" name="tkvault_keep_generations"
+						value="<?php echo esc_attr( get_option( 'tkvault_keep_generations', 10 ) ); ?>"
 						min="1" max="100" class="small-text">
-					<p class="description"><?php esc_html_e( 'この件数を超えた古いバックアップは自動削除されます。', 'wp-vault' ); ?></p>
+					<p class="description"><?php esc_html_e( 'Older backups beyond this count are deleted automatically.', 'takumi-vault' ); ?></p>
 				</td>
 			</tr>
 			<tr>
 				<th scope="row">
-					<label for="wpvault_notify_email"><?php esc_html_e( '通知メールアドレス', 'wp-vault' ); ?></label>
+					<label for="tkvault_notify_email"><?php esc_html_e( 'Notification email', 'takumi-vault' ); ?></label>
 				</th>
 				<td>
-					<input type="email" id="wpvault_notify_email" name="wpvault_notify_email"
-						value="<?php echo esc_attr( get_option( 'wpvault_notify_email', get_option( 'admin_email' ) ) ); ?>"
+					<input type="email" id="tkvault_notify_email" name="tkvault_notify_email"
+						value="<?php echo esc_attr( get_option( 'tkvault_notify_email', get_option( 'admin_email' ) ) ); ?>"
 						class="regular-text">
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_html_e( '完了通知', 'wp-vault' ); ?></th>
+				<th scope="row"><?php esc_html_e( 'Success notices', 'takumi-vault' ); ?></th>
 				<td>
 					<label>
-						<input type="checkbox" name="wpvault_notify_on_success" value="1"
-							<?php checked( get_option( 'wpvault_notify_on_success', 1 ), 1 ); ?>>
-						<?php esc_html_e( 'バックアップ完了時にメールを送信する', 'wp-vault' ); ?>
+						<input type="checkbox" name="tkvault_notify_on_success" value="1"
+							<?php checked( get_option( 'tkvault_notify_on_success', 1 ), 1 ); ?>>
+						<?php esc_html_e( 'Email me when a backup finishes', 'takumi-vault' ); ?>
 					</label>
 				</td>
 			</tr>
 		</table>
 
-		<?php submit_button( __( '設定を保存', 'wp-vault' ) ); ?>
+		<?php submit_button( __( 'Save settings', 'takumi-vault' ) ); ?>
 	</form>
 </div>

@@ -1,23 +1,23 @@
 <?php
 defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
 
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-wp-vault-db.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-tkvault-db.php';
 
-WP_Vault_DB::drop_tables();
+TKVault_DB::drop_tables();
 
-$options = array(
-	'wpvault_backup_dir',
-	'wpvault_schedule',
-	'wpvault_keep_generations',
-	'wpvault_notify_email',
-	'wpvault_notify_on_success',
+$tkvault_options = array(
+	'tkvault_backup_dir',
+	'tkvault_schedule',
+	'tkvault_keep_generations',
+	'tkvault_notify_email',
+	'tkvault_notify_on_success',
 );
 
-foreach ( $options as $option ) {
-	delete_option( $option );
+foreach ( $tkvault_options as $tkvault_option ) {
+	delete_option( $tkvault_option );
 }
 
-$timestamp = wp_next_scheduled( 'wpvault_scheduled_backup' );
-if ( $timestamp ) {
-	wp_unschedule_event( $timestamp, 'wpvault_scheduled_backup' );
+$tkvault_timestamp = wp_next_scheduled( 'tkvault_scheduled_backup' );
+if ( $tkvault_timestamp ) {
+	wp_unschedule_event( $tkvault_timestamp, 'tkvault_scheduled_backup' );
 }
