@@ -24,6 +24,7 @@ define( 'TKVAULT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TKVAULT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'TKVAULT_PLUGIN_FILE', __FILE__ );
 
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-storage.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-restore.php';
@@ -35,30 +36,48 @@ register_deactivation_hook( __FILE__, 'tkvault_deactivate' );
 
 function tkvault_activate() {
 	TKVault_DB::create_tables();
-	tkvault_ensure_backup_dir();
+
+	// Pick a destination now so the first backup does not have to. A failure
+	// here is not fatal to activation: the admin screens report it and the
+	// user can set a path manually.
+	$dir = TKVault_Storage::auto_configure();
+	if ( is_wp_error( $dir ) ) {
+		update_option( 'tkvault_setup_error', $dir->get_error_message(), false );
+	} else {
+		delete_option( 'tkvault_setup_error' );
+	}
 }
 
 function tkvault_deactivate() {
 	TKVault_Scheduler::clear_scheduled_events();
 }
 
+/**
+ * The configured backup directory, or an empty string when none has been
+ * successfully claimed. Callers must handle the empty case rather than
+ * assuming a path exists.
+ */
 function tkvault_get_backup_dir() {
-	$default = dirname( ABSPATH ) . '/_backup';
-	return get_option( 'tkvault_backup_dir', $default );
+	return TKVault_Storage::get_dir();
 }
 
+/**
+ * Resolve a usable backup directory, re-running the checks if needed.
+ *
+ * @return string|WP_Error
+ */
 function tkvault_ensure_backup_dir() {
-	$dir = tkvault_get_backup_dir();
-	if ( ! is_dir( $dir ) ) {
-		if ( ! wp_mkdir_p( $dir ) ) {
-			return new WP_Error(
-				'dir_create_failed',
-				__( 'Could not create the backup directory.', 'takumi-vault' )
-			);
-		}
-		// Prevent direct web access on Apache.
-		file_put_contents( $dir . '/.htaccess', 'deny from all' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
+	$dir = TKVault_Storage::get_dir();
+
+	if ( ! $dir ) {
+		return TKVault_Storage::auto_configure();
 	}
+
+	$result = TKVault_Storage::evaluate( $dir, false );
+	if ( ! $result['ok'] ) {
+		return $result['error'];
+	}
+
 	return $dir;
 }
 

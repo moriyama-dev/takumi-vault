@@ -12,7 +12,7 @@ set -euo pipefail
 
 SLUG="takumi-vault"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-DIST="${ROOT}/dist"
+DIST="$(cd "${ROOT}/.." && pwd)/takumi-vault-dist"
 STAGE="${DIST}/${SLUG}"
 
 VERSION="$(grep -m1 '^ \* Version:' "${ROOT}/${SLUG}.php" | awk '{print $3}')"
