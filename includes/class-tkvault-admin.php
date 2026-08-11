@@ -12,6 +12,52 @@ class TKVault_Admin {
 		add_action( 'admin_post_tkvault_download_backup', array( $this, 'handle_download' ) );
 		add_action( 'admin_post_tkvault_save_settings', array( $this, 'save_settings' ) );
 		add_action( 'admin_notices', array( $this, 'render_notices' ) );
+		add_action( 'wp_ajax_tkvault_start_selftest', array( $this, 'ajax_start_selftest' ) );
+		add_action( 'wp_ajax_tkvault_cancel_job', array( $this, 'ajax_cancel_job' ) );
+	}
+
+	/**
+	 * Start the background-processing self-test.
+	 *
+	 * Creating jobs is deliberately kept here, behind a nonce and a capability
+	 * check, and out of the loopback endpoint, which can only ever advance
+	 * work that an authenticated request already asked for.
+	 */
+	public function ajax_start_selftest() {
+		check_ajax_referer( 'tkvault_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'takumi-vault' ) ) );
+		}
+
+		$chunks = isset( $_POST['chunks'] ) ? max( 1, min( 200, absint( $_POST['chunks'] ) ) ) : 20;
+
+		$job = TKVault_Jobs::create(
+			'demo',
+			array(
+				'chunks'  => $chunks,
+				'work_ms' => 120,
+			),
+			$chunks
+		);
+
+		TKVault_Runner::dispatch( $job['id'] );
+
+		wp_send_json_success( TKVault_Runner::snapshot( TKVault_Jobs::get( $job['id'] ) ) );
+	}
+
+	public function ajax_cancel_job() {
+		check_ajax_referer( 'tkvault_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'takumi-vault' ) ) );
+		}
+
+		$job_id = isset( $_POST['job'] ) ? absint( $_POST['job'] ) : 0;
+		if ( ! $job_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid job.', 'takumi-vault' ) ) );
+		}
+
+		TKVault_Jobs::cancel( $job_id );
+		wp_send_json_success( TKVault_Runner::snapshot( TKVault_Jobs::get( $job_id ) ) );
 	}
 
 	/**
@@ -142,6 +188,14 @@ class TKVault_Admin {
 					'idle'           => __( 'Start backup', 'takumi-vault' ),
 					'success'        => __( 'Done.', 'takumi-vault' ),
 					'error'          => __( 'Something went wrong.', 'takumi-vault' ),
+					/* translators: 1: chunks processed so far, 2: total chunks */
+					'jobRunning'     => __( 'Running: %1$d of %2$d', 'takumi-vault' ),
+					/* translators: 1: chunks processed, 2: total chunks */
+					'jobComplete'    => __( 'Finished: %1$d of %2$d chunks processed.', 'takumi-vault' ),
+					'jobFailed'      => __( 'Failed.', 'takumi-vault' ),
+					'jobCancelled'   => __( 'Cancelled.', 'takumi-vault' ),
+					'jobStarting'    => __( 'Starting...', 'takumi-vault' ),
+					'selfTest'       => __( 'Run self-test', 'takumi-vault' ),
 				),
 			)
 		);

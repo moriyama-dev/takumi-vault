@@ -20,6 +20,11 @@ class TKVault_Scheduler {
 	 * and wp_schedule_event() would silently refuse.
 	 */
 	public static function add_cron_intervals( array $schedules ) {
+		// The watchdog needs a tighter interval than anything WordPress ships.
+		$schedules['tkvault_five_minutes'] = array(
+			'interval' => 5 * MINUTE_IN_SECONDS,
+			'display'  => __( 'Every five minutes', 'takumi-vault' ),
+		);
 		$schedules['tkvault_weekly'] = array(
 			'interval' => WEEK_IN_SECONDS,
 			'display'  => __( 'Weekly', 'takumi-vault' ),

@@ -84,3 +84,23 @@
 	background: #fcefef;
 	color: #8a1f11;
 }
+
+.tkvault-progress-bar {
+	background: #f0f0f1;
+	border-radius: 3px;
+	height: 18px;
+	overflow: hidden;
+	max-width: 480px;
+}
+
+.tkvault-progress-bar span {
+	display: block;
+	height: 100%;
+	background: #2271b1;
+	transition: width .2s ease;
+}
+
+.tkvault-progress-text {
+	margin: 8px 0 0;
+	font-size: 13px;
+}

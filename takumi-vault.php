@@ -26,6 +26,8 @@ define( 'TKVAULT_PLUGIN_FILE', __FILE__ );
 
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-storage.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-preflight.php';
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-jobs.php';
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-runner.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-restore.php';
@@ -34,11 +36,14 @@ require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-admin.php';
 
 add_filter( 'cron_schedules', array( 'TKVault_Scheduler', 'add_cron_intervals' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 
+TKVault_Runner::init();
+
 register_activation_hook( __FILE__, 'tkvault_activate' );
 register_deactivation_hook( __FILE__, 'tkvault_deactivate' );
 
 function tkvault_activate() {
 	TKVault_DB::create_tables();
+	TKVault_Jobs::create_table();
 
 	// Pick a destination now so the first backup does not have to. A failure
 	// here is not fatal to activation: the admin screens report it and the
@@ -51,11 +56,13 @@ function tkvault_activate() {
 	}
 
 	TKVault_Scheduler::schedule_reprobe_event();
+	TKVault_Runner::schedule_watchdog();
 }
 
 function tkvault_deactivate() {
 	TKVault_Scheduler::clear_scheduled_events();
 	TKVault_Scheduler::clear_reprobe_event();
+	TKVault_Runner::clear_watchdog();
 }
 
 /**

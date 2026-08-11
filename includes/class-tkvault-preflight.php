@@ -101,6 +101,26 @@ class TKVault_Preflight {
 			);
 		}
 
+		// The absence of a transport error is not success. A request that
+		// reaches the server and is turned away still comes back without a
+		// WP_Error, so the reply itself has to be inspected - otherwise a site
+		// where the plugin cannot even load reports its background processing
+		// as healthy.
+		$code = (int) wp_remote_retrieve_response_code( $response );
+		$body = (string) wp_remote_retrieve_body( $response );
+
+		if ( 200 !== $code || false === strpos( $body, '"success":true' ) ) {
+			return self::row(
+				__( 'Loopback requests', 'takumi-vault' ),
+				self::WARN,
+				sprintf(
+					/* translators: %d: HTTP status code returned by the loopback request */
+					__( 'The site answered its own request with HTTP %d instead of running the handler. Long jobs will advance only while an admin screen is open.', 'takumi-vault' ),
+					$code
+				)
+			);
+		}
+
 		return self::row( __( 'Loopback requests', 'takumi-vault' ), self::OK, __( 'Working. Long jobs continue in the background.', 'takumi-vault' ) );
 	}
 

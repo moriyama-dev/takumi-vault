@@ -81,4 +81,23 @@ $tkvault_labels = array(
 			<?php esc_html_e( 'Run the check now', 'takumi-vault' ); ?>
 		</a>
 	</p>
+
+	<h2><?php esc_html_e( 'Background processing self-test', 'takumi-vault' ); ?></h2>
+	<p>
+		<?php esc_html_e( 'Backups are too big for one request, so they are split into chunks that hand over to each other. This runs a job that does nothing but count, to confirm the mechanism completes on this host.', 'takumi-vault' ); ?>
+	</p>
+	<p>
+		<?php esc_html_e( 'If loopback requests are blocked, the job advances while this page is open instead. Either way it should reach 100%.', 'takumi-vault' ); ?>
+	</p>
+
+	<div class="tkvault-job" data-job="0">
+		<p>
+			<button class="button button-primary" id="tkvault-start-selftest"><?php esc_html_e( 'Run self-test', 'takumi-vault' ); ?></button>
+			<button class="button" id="tkvault-cancel-job" style="display:none;"><?php esc_html_e( 'Cancel', 'takumi-vault' ); ?></button>
+		</p>
+		<div class="tkvault-progress" style="display:none;">
+			<div class="tkvault-progress-bar"><span style="width:0%"></span></div>
+			<p class="tkvault-progress-text"></p>
+		</div>
+	</div>
 </div>

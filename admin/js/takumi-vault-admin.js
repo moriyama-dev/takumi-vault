@@ -36,6 +36,120 @@
 		sync();
 	} )();
 
+	// Job progress. Polling is not only for display: each poll advances the
+	// job server-side, which is what carries it to completion on hosts where
+	// loopback requests are blocked.
+	( function () {
+		var $panel = $( '.tkvault-job' );
+		if ( ! $panel.length ) {
+			return;
+		}
+
+		var $start    = $( '#tkvault-start-selftest' );
+		var $cancel   = $( '#tkvault-cancel-job' );
+		var $progress = $panel.find( '.tkvault-progress' );
+		var $bar      = $panel.find( '.tkvault-progress-bar span' );
+		var $text     = $panel.find( '.tkvault-progress-text' );
+		var timer     = null;
+
+		function format( template, a, b ) {
+			return template.replace( '%1$d', a ).replace( '%2$d', b );
+		}
+
+		function render( job ) {
+			$bar.css( 'width', ( job.percent || 0 ) + '%' );
+
+			if ( 'complete' === job.status ) {
+				$text.text( format( tkvaultAdmin.i18n.jobComplete, job.processed, job.total ) );
+			} else if ( 'failed' === job.status ) {
+				$text.text( tkvaultAdmin.i18n.jobFailed + ' ' + ( job.message || '' ) );
+			} else if ( 'cancelled' === job.status ) {
+				$text.text( tkvaultAdmin.i18n.jobCancelled );
+			} else {
+				$text.text( format( tkvaultAdmin.i18n.jobRunning, job.processed, job.total ) );
+			}
+
+			var finished = [ 'complete', 'failed', 'cancelled', 'missing' ].indexOf( job.status ) !== -1;
+			if ( finished ) {
+				stop();
+			}
+		}
+
+		function stop() {
+			if ( timer ) {
+				window.clearTimeout( timer );
+				timer = null;
+			}
+			$start.prop( 'disabled', false ).text( tkvaultAdmin.i18n.selfTest );
+			$cancel.hide();
+		}
+
+		function poll() {
+			var id = parseInt( $panel.attr( 'data-job' ), 10 );
+			if ( ! id ) {
+				return;
+			}
+
+			$.post( tkvaultAdmin.ajaxUrl, {
+				action : 'tkvault_job_poll',
+				nonce  : tkvaultAdmin.nonce,
+				job    : id,
+			} )
+			.done( function ( res ) {
+				if ( res.success ) {
+					render( res.data );
+					if ( timer !== null || [ 'pending', 'running' ].indexOf( res.data.status ) !== -1 ) {
+						timer = window.setTimeout( poll, 1000 );
+					}
+				}
+			} )
+			.fail( function () {
+				timer = window.setTimeout( poll, 3000 );
+			} );
+		}
+
+		$start.on( 'click', function ( e ) {
+			e.preventDefault();
+			$start.prop( 'disabled', true ).text( tkvaultAdmin.i18n.jobStarting );
+			$progress.show();
+			$cancel.show();
+
+			$.post( tkvaultAdmin.ajaxUrl, {
+				action : 'tkvault_start_selftest',
+				nonce  : tkvaultAdmin.nonce,
+				chunks : 20,
+			} )
+			.done( function ( res ) {
+				if ( ! res.success ) {
+					$text.text( res.data.message );
+					stop();
+					return;
+				}
+				$panel.attr( 'data-job', res.data.id );
+				render( res.data );
+				timer = window.setTimeout( poll, 500 );
+			} )
+			.fail( function () {
+				$text.text( tkvaultAdmin.i18n.error );
+				stop();
+			} );
+		} );
+
+		$cancel.on( 'click', function ( e ) {
+			e.preventDefault();
+			$.post( tkvaultAdmin.ajaxUrl, {
+				action : 'tkvault_cancel_job',
+				nonce  : tkvaultAdmin.nonce,
+				job    : parseInt( $panel.attr( 'data-job' ), 10 ),
+			} )
+			.done( function ( res ) {
+				if ( res.success ) {
+					render( res.data );
+				}
+			} );
+		} );
+	} )();
+
 	// Run backup from dashboard.
 	$( '#tkvault-run-backup' ).on( 'click', function () {
 		var $btn    = $( this );
