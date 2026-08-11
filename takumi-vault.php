@@ -25,11 +25,14 @@ define( 'TKVAULT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'TKVAULT_PLUGIN_FILE', __FILE__ );
 
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-storage.php';
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-preflight.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-scheduler.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-admin.php';
+
+add_filter( 'cron_schedules', array( 'TKVault_Scheduler', 'add_cron_intervals' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 
 register_activation_hook( __FILE__, 'tkvault_activate' );
 register_deactivation_hook( __FILE__, 'tkvault_deactivate' );
@@ -46,10 +49,58 @@ function tkvault_activate() {
 	} else {
 		delete_option( 'tkvault_setup_error' );
 	}
+
+	TKVault_Scheduler::schedule_reprobe_event();
 }
 
 function tkvault_deactivate() {
 	TKVault_Scheduler::clear_scheduled_events();
+	TKVault_Scheduler::clear_reprobe_event();
+}
+
+/**
+ * Re-check exposure whenever something that could change the answer changes.
+ *
+ * A destination that was outside web-served space when the plugin was
+ * installed does not stay that way by law. Moving to nginx, editing the
+ * document root or a host reshuffling its configuration can all expose it,
+ * and none of those events tell WordPress about themselves - so the triggers
+ * below are proxies, backed by the weekly scheduled check.
+ */
+add_action( 'admin_init', 'tkvault_maybe_reprobe' );
+add_action( 'update_option_siteurl', 'tkvault_force_reprobe' );
+add_action( 'update_option_home', 'tkvault_force_reprobe' );
+add_action( TKVault_Scheduler::REPROBE_HOOK, array( 'TKVault_Storage', 'reprobe' ) );
+
+function tkvault_maybe_reprobe() {
+	// Undo a widened directory left behind by a request that died mid-probe.
+	TKVault_Storage::heal();
+
+	if ( ! TKVault_Storage::get_dir() ) {
+		return;
+	}
+
+	// A plugin update may change how any of this works, so re-check once.
+	if ( get_option( 'tkvault_probed_version' ) !== TKVAULT_VERSION ) {
+		update_option( 'tkvault_probed_version', TKVAULT_VERSION, false );
+		TKVault_Storage::reprobe();
+	}
+}
+
+function tkvault_force_reprobe() {
+	if ( TKVault_Storage::get_dir() ) {
+		TKVault_Storage::reprobe();
+	}
+}
+
+/**
+ * Endpoint used only by the preflight loopback test.
+ */
+add_action( 'wp_ajax_tkvault_loopback_ping', 'tkvault_loopback_ping' );
+add_action( 'wp_ajax_nopriv_tkvault_loopback_ping', 'tkvault_loopback_ping' );
+
+function tkvault_loopback_ping() {
+	wp_send_json_success( array( 'pong' => true ) );
 }
 
 /**
@@ -71,6 +122,11 @@ function tkvault_ensure_backup_dir() {
 
 	if ( ! $dir ) {
 		return TKVault_Storage::auto_configure();
+	}
+
+	$store = TKVault_Storage::ensure_store();
+	if ( is_wp_error( $store ) ) {
+		return $store;
 	}
 
 	$result = TKVault_Storage::evaluate( $dir, false );

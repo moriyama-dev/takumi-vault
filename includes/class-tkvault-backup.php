@@ -13,6 +13,20 @@ class TKVault_Backup {
 			return $backup_dir;
 		}
 
+		// Re-check exposure immediately before writing. The destination was
+		// verified when it was configured, but that may have been months ago
+		// and a server can be reconfigured underneath us.
+		if ( TKVault_Storage::PUBLIC_YES === TKVault_Storage::reprobe() ) {
+			return new WP_Error(
+				'tkvault_dir_public',
+				__( 'The backup directory is downloadable over HTTP. Backup cancelled; change the destination first.', 'takumi-vault' )
+			);
+		}
+
+		// Archives live one level down so the directory above stays free for
+		// the exposure probe to use.
+		$backup_dir = TKVault_Storage::get_store_dir();
+
 		$timestamp = gmdate( 'Y-m-d_His' );
 		$results   = array();
 
@@ -110,18 +124,40 @@ class TKVault_Backup {
 		return $zip_path;
 	}
 
+	/**
+	 * Resolved absolute path of our own destination, or '' if there is none.
+	 *
+	 * Matching on the name "_backup" would miss it: the directory carries a
+	 * random suffix, and on the uploads fallback it lives inside the tree
+	 * being archived, which would make the backup swallow itself.
+	 */
+	private function excluded_root() {
+		$dir = TKVault_Storage::get_dir();
+		if ( ! $dir ) {
+			return '';
+		}
+		$real = realpath( $dir );
+		return $real ? wp_normalize_path( untrailingslashit( $real ) ) : '';
+	}
+
 	private function add_directory_to_zip( ZipArchive $zip, string $dir, string $base ) {
 		$iterator = new RecursiveIteratorIterator(
 			new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS ),
 			RecursiveIteratorIterator::SELF_FIRST
 		);
 
-		foreach ( $iterator as $file ) {
-			$file_path   = $file->getRealPath();
-			$relative    = ltrim( str_replace( $base, '', $file_path ), DIRECTORY_SEPARATOR );
+		$excluded = $this->excluded_root();
 
-			// Skip the backup directory itself to avoid recursion.
-			if ( 0 === strpos( $file_path, tkvault_get_backup_dir() ) ) {
+		foreach ( $iterator as $file ) {
+			$file_path = $file->getRealPath();
+			if ( false === $file_path ) {
+				continue;
+			}
+			$file_path = wp_normalize_path( $file_path );
+			$relative  = ltrim( str_replace( wp_normalize_path( $base ), '', $file_path ), '/' );
+
+			// Compare resolved paths, never name fragments.
+			if ( $excluded && 0 === strpos( $file_path . '/', $excluded . '/' ) ) {
 				continue;
 			}
 

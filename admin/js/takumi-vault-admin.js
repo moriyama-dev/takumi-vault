@@ -10,6 +10,32 @@
 			.show();
 	}
 
+	// Settings: keep the destination un-saveable while the user is being asked
+	// to confirm a publicly readable directory. The server refuses it too -
+	// this only stops the click from looking like it worked.
+	( function () {
+		var $accept = $( '#tkvault-accept-public' );
+		if ( ! $accept.length ) {
+			return;
+		}
+
+		var $submit = $accept.closest( 'form' ).find( ':submit' );
+		var $choice = $( 'input[name="tkvault_public_choice"]' );
+
+		function sync() {
+			var accepting = $( '#tkvault-choice-accept' ).is( ':checked' );
+			$accept.prop( 'disabled', ! accepting );
+			if ( ! accepting ) {
+				$accept.prop( 'checked', false );
+			}
+			$submit.prop( 'disabled', accepting && ! $accept.is( ':checked' ) );
+		}
+
+		$choice.on( 'change', sync );
+		$accept.on( 'change', sync );
+		sync();
+	} )();
+
 	// Run backup from dashboard.
 	$( '#tkvault-run-backup' ).on( 'click', function () {
 		var $btn    = $( this );

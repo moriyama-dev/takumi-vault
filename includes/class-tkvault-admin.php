@@ -11,6 +11,50 @@ class TKVault_Admin {
 		add_action( 'wp_ajax_tkvault_delete_backup', array( $this, 'ajax_delete_backup' ) );
 		add_action( 'admin_post_tkvault_download_backup', array( $this, 'handle_download' ) );
 		add_action( 'admin_post_tkvault_save_settings', array( $this, 'save_settings' ) );
+		add_action( 'admin_notices', array( $this, 'render_notices' ) );
+	}
+
+	/**
+	 * Standing warnings that must survive navigating away.
+	 *
+	 * The exposure alert in particular is not dismissible: a directory that
+	 * became downloadable stays downloadable until someone moves it, and a
+	 * notice the user can wave away is no use for that.
+	 */
+	public function render_notices() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		$settings_url = admin_url( 'admin.php?page=takumi-vault-settings' );
+
+		if ( TKVault_Storage::PUBLIC_YES === TKVault_Storage::last_verdict() ) {
+			printf(
+				'<div class="notice notice-error"><p><strong>%s</strong> %s</p><p><a href="%s" class="button button-primary">%s</a></p></div>',
+				esc_html__( 'Takumi Vault:', 'takumi-vault' ),
+				esc_html__( 'the backup directory can be downloaded over HTTP. Anyone who guesses the path can take a copy of your database. Move it to a directory outside the web root.', 'takumi-vault' ),
+				esc_url( $settings_url ),
+				esc_html__( 'Change the destination', 'takumi-vault' )
+			);
+
+			if ( TKVault_Storage::has_alert() ) {
+				printf(
+					'<div class="notice notice-error"><p>%s</p></div>',
+					esc_html__( 'Takumi Vault: this destination used to be private and is not any more, so scheduled backups have been stopped. Re-enable them once the destination is safe again.', 'takumi-vault' )
+				);
+			}
+			return;
+		}
+
+		if ( ! TKVault_Storage::get_dir() ) {
+			printf(
+				'<div class="notice notice-warning"><p><strong>%s</strong> %s <a href="%s">%s</a></p></div>',
+				esc_html__( 'Takumi Vault:', 'takumi-vault' ),
+				esc_html__( 'no backup destination is configured, so backups cannot run.', 'takumi-vault' ),
+				esc_url( $settings_url ),
+				esc_html__( 'Set one now', 'takumi-vault' )
+			);
+		}
 	}
 
 	public function register_menu() {
@@ -50,6 +94,22 @@ class TKVault_Admin {
 			'takumi-vault-settings',
 			array( $this, 'render_settings' )
 		);
+
+		add_submenu_page(
+			'takumi-vault',
+			__( 'Diagnostics', 'takumi-vault' ),
+			__( 'Diagnostics', 'takumi-vault' ),
+			'manage_options',
+			'takumi-vault-preflight',
+			array( $this, 'render_preflight' )
+		);
+	}
+
+	public function render_preflight() {
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( esc_html__( 'You do not have permission to access this page.', 'takumi-vault' ) );
+		}
+		include TKVAULT_PLUGIN_DIR . 'admin/views/preflight.php';
 	}
 
 	public function enqueue_assets( string $hook ) {
@@ -183,7 +243,7 @@ class TKVault_Admin {
 	 * @return string|false
 	 */
 	private static function resolve_backup_file( string $filename ) {
-		$real_dir = realpath( tkvault_get_backup_dir() );
+		$real_dir = realpath( TKVault_Storage::get_store_dir() );
 		if ( false === $real_dir ) {
 			return false;
 		}
@@ -239,12 +299,17 @@ class TKVault_Admin {
 		$keep_generations  = isset( $_POST['tkvault_keep_generations'] ) ? absint( $_POST['tkvault_keep_generations'] ) : 10;
 		$notify_email      = isset( $_POST['tkvault_notify_email'] ) ? sanitize_email( wp_unslash( $_POST['tkvault_notify_email'] ) ) : '';
 		$notify_on_success = isset( $_POST['tkvault_notify_on_success'] ) ? 1 : 0;
+		$accept_public     = isset( $_POST['tkvault_accept_public'] ) && '1' === $_POST['tkvault_accept_public'];
 
-		// TODO(step 1): run the write test and the canary exposure probe before
-		// accepting a new path. Until then the value is stored as entered.
-		if ( $backup_dir ) {
-			update_option( 'tkvault_backup_dir', $backup_dir );
+		// A submitted path is put through exactly the same checks as an
+		// automatically chosen one. Nothing is stored until they pass.
+		if ( $backup_dir && $backup_dir !== TKVault_Storage::get_dir() ) {
+			$saved = $this->save_backup_dir( $backup_dir, $accept_public );
+			if ( is_wp_error( $saved ) ) {
+				$this->redirect_with_error( $saved, $backup_dir );
+			}
 		}
+
 		update_option( 'tkvault_schedule', $schedule );
 		update_option( 'tkvault_keep_generations', $keep_generations );
 		update_option( 'tkvault_notify_email', $notify_email );
@@ -257,11 +322,77 @@ class TKVault_Admin {
 			$scheduler->schedule( $schedule );
 		}
 
+		delete_option( 'tkvault_settings_error' );
+
 		wp_safe_redirect(
 			add_query_arg(
 				array(
 					'page'    => 'takumi-vault-settings',
 					'updated' => '1',
+				),
+				admin_url( 'admin.php' )
+			)
+		);
+		exit;
+	}
+
+	/**
+	 * Validate and store a user-supplied destination.
+	 *
+	 * The only way past a "public" verdict is the explicit checkbox. Without
+	 * it the setting is refused outright rather than saved with a warning
+	 * attached - a warning next to a saved value is indistinguishable from a
+	 * warning next to a working one, and this is the failure that leaks the
+	 * whole database.
+	 *
+	 * @return true|WP_Error
+	 */
+	private function save_backup_dir( $dir, $accept_public ) {
+		$dir = wp_normalize_path( untrailingslashit( $dir ) );
+
+		if ( ! path_is_absolute( $dir ) ) {
+			return new WP_Error( 'tkvault_relative_path', __( 'Enter an absolute path.', 'takumi-vault' ) );
+		}
+
+		$result = TKVault_Storage::evaluate( $dir, false );
+
+		if ( ! $result['ok'] && 'tkvault_dir_public' === $result['error']->get_error_code() ) {
+			if ( ! $accept_public ) {
+				return $result['error'];
+			}
+			// Accepted knowingly: re-run in the mode that keeps a public
+			// directory, which also writes the full set of hardening files.
+			$result = TKVault_Storage::evaluate( $dir, true );
+			update_option( TKVault_Storage::OPTION_ACK, time(), false );
+		}
+
+		if ( ! $result['ok'] ) {
+			return $result['error'];
+		}
+
+		update_option( TKVault_Storage::OPTION_DIR, $dir, false );
+		TKVault_Storage::record_verdict( $result['verdict'] );
+		delete_option( 'tkvault_setup_error' );
+
+		return true;
+	}
+
+	private function redirect_with_error( WP_Error $error, $attempted ) {
+		update_option(
+			'tkvault_settings_error',
+			array(
+				'code'      => $error->get_error_code(),
+				'message'   => $error->get_error_message(),
+				'attempted' => $attempted,
+			),
+			false
+		);
+
+		wp_safe_redirect(
+			add_query_arg(
+				array(
+					'page'  => 'takumi-vault-settings',
+					'error' => '1',
 				),
 				admin_url( 'admin.php' )
 			)

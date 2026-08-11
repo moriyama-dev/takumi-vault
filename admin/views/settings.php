@@ -1,9 +1,19 @@
-<?php defined( 'ABSPATH' ) || exit; ?>
+<?php
+defined( 'ABSPATH' ) || exit;
+
+$tkvault_error     = get_option( 'tkvault_settings_error' );
+$tkvault_is_public = is_array( $tkvault_error ) && 'tkvault_dir_public' === $tkvault_error['code'];
+$tkvault_value     = $tkvault_error && ! empty( $tkvault_error['attempted'] ) ? $tkvault_error['attempted'] : tkvault_get_backup_dir();
+?>
 <div class="wrap tkvault-wrap">
 	<h1><?php esc_html_e( 'Settings', 'takumi-vault' ); ?></h1>
 
 	<?php if ( isset( $_GET['updated'] ) ) : // phpcs:ignore WordPress.Security.NonceVerification.Recommended ?>
 		<div class="notice notice-success is-dismissible"><p><?php esc_html_e( 'Settings saved.', 'takumi-vault' ); ?></p></div>
+	<?php endif; ?>
+
+	<?php if ( $tkvault_error && ! $tkvault_is_public ) : ?>
+		<div class="notice notice-error"><p><?php echo esc_html( $tkvault_error['message'] ); ?></p></div>
 	<?php endif; ?>
 
 	<form method="post" action="<?php echo esc_url( admin_url( 'admin-post.php' ) ); ?>">
@@ -17,11 +27,37 @@
 				</th>
 				<td>
 					<input type="text" id="tkvault_backup_dir" name="tkvault_backup_dir"
-						value="<?php echo esc_attr( tkvault_get_backup_dir() ); ?>"
+						value="<?php echo esc_attr( $tkvault_value ); ?>"
 						class="large-text">
 					<p class="description">
-						<?php esc_html_e( 'Choose a directory your web server cannot serve. Takumi Vault checks the destination before writing to it.', 'takumi-vault' ); ?>
+						<?php esc_html_e( 'Choose a directory your web server cannot serve. Takumi Vault writes a test file there and tries to download it before storing anything.', 'takumi-vault' ); ?>
 					</p>
+
+					<?php if ( $tkvault_is_public ) : ?>
+						<div class="notice notice-error inline tkvault-public-warning" style="margin:12px 0;padding:10px 12px;">
+							<p><strong><?php esc_html_e( 'This directory is downloadable over the web.', 'takumi-vault' ); ?></strong></p>
+							<p><?php echo esc_html( $tkvault_error['message'] ); ?></p>
+							<p><?php esc_html_e( 'Nothing has been saved. Choose one:', 'takumi-vault' ); ?></p>
+							<p>
+								<label>
+									<input type="radio" name="tkvault_public_choice" value="change" checked>
+									<?php esc_html_e( 'Enter a different path above (recommended)', 'takumi-vault' ); ?>
+								</label>
+							</p>
+							<p>
+								<label>
+									<input type="radio" name="tkvault_public_choice" value="accept" id="tkvault-choice-accept">
+									<?php esc_html_e( 'Use this directory anyway', 'takumi-vault' ); ?>
+								</label>
+							</p>
+							<p style="margin-left:24px;">
+								<label>
+									<input type="checkbox" name="tkvault_accept_public" value="1" id="tkvault-accept-public">
+									<?php esc_html_e( 'I understand that backup files in this location may be publicly downloadable, including a full copy of my database.', 'takumi-vault' ); ?>
+								</label>
+							</p>
+						</div>
+					<?php endif; ?>
 				</td>
 			</tr>
 			<tr>

@@ -13,7 +13,7 @@ class TKVault_Restore {
 			return new WP_Error( 'not_found', __( 'Backup not found.', 'takumi-vault' ) );
 		}
 
-		$backup_dir = tkvault_get_backup_dir();
+		$backup_dir = TKVault_Storage::get_store_dir();
 		$filepath   = trailingslashit( $backup_dir ) . $record->filename;
 
 		if ( ! file_exists( $filepath ) ) {
