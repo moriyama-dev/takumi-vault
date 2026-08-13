@@ -74,21 +74,27 @@
 
 	</div>
 
-	<div class="tkvault-card tkvault-backup-actions">
+	<div class="tkvault-card tkvault-backup-actions tkvault-job"
+		data-job="0"
+		data-start-action="tkvault_start_backup"
+		data-note-field="#tkvault-backup-note">
 		<h2><?php esc_html_e( 'Back up now', 'takumi-vault' ); ?></h2>
+		<p class="description">
+			<?php esc_html_e( 'Backs up the database. File backups arrive in a later version.', 'takumi-vault' ); ?>
+		</p>
 		<div class="tkvault-action-row">
-			<label for="tkvault-backup-type"><?php esc_html_e( 'What to include', 'takumi-vault' ); ?></label>
-			<select id="tkvault-backup-type">
-				<option value="full"><?php esc_html_e( 'Database and files', 'takumi-vault' ); ?></option>
-				<option value="db"><?php esc_html_e( 'Database only', 'takumi-vault' ); ?></option>
-				<option value="files"><?php esc_html_e( 'Files only', 'takumi-vault' ); ?></option>
-			</select>
 			<label for="tkvault-backup-note"><?php esc_html_e( 'Note (optional)', 'takumi-vault' ); ?></label>
 			<input type="text" id="tkvault-backup-note" placeholder="<?php esc_attr_e( 'e.g. before the theme change', 'takumi-vault' ); ?>">
-			<button id="tkvault-run-backup" class="button button-primary">
+			<button class="button button-primary tkvault-job-start">
 				<?php esc_html_e( 'Start backup', 'takumi-vault' ); ?>
 			</button>
+			<button class="button tkvault-job-cancel" style="display:none;">
+				<?php esc_html_e( 'Cancel', 'takumi-vault' ); ?>
+			</button>
 		</div>
-		<div id="tkvault-backup-result" class="tkvault-notice" style="display:none;"></div>
+		<div class="tkvault-progress" style="display:none;">
+			<div class="tkvault-progress-bar"><span style="width:0%"></span></div>
+			<p class="tkvault-progress-text"></p>
+		</div>
 	</div>
 </div>

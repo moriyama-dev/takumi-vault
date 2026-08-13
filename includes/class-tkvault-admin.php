@@ -14,6 +14,7 @@ class TKVault_Admin {
 		add_action( 'admin_notices', array( $this, 'render_notices' ) );
 		add_action( 'wp_ajax_tkvault_start_selftest', array( $this, 'ajax_start_selftest' ) );
 		add_action( 'wp_ajax_tkvault_cancel_job', array( $this, 'ajax_cancel_job' ) );
+		add_action( 'wp_ajax_tkvault_start_backup', array( $this, 'ajax_start_backup' ) );
 	}
 
 	/**
@@ -39,6 +40,38 @@ class TKVault_Admin {
 			),
 			$chunks
 		);
+
+		TKVault_Runner::dispatch( $job['id'] );
+
+		wp_send_json_success( TKVault_Runner::snapshot( TKVault_Jobs::get( $job['id'] ) ) );
+	}
+
+	/**
+	 * Queue a database backup and hand the job id back for polling.
+	 */
+	public function ajax_start_backup() {
+		check_ajax_referer( 'tkvault_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'takumi-vault' ) ) );
+		}
+
+		$note = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : '';
+
+		$dir = tkvault_ensure_backup_dir();
+		if ( is_wp_error( $dir ) ) {
+			wp_send_json_error( array( 'message' => $dir->get_error_message() ) );
+		}
+
+		if ( TKVault_Storage::PUBLIC_YES === TKVault_Storage::reprobe() ) {
+			wp_send_json_error(
+				array( 'message' => __( 'The backup directory is downloadable over HTTP. Change the destination before backing up.', 'takumi-vault' ) )
+			);
+		}
+
+		$job = TKVault_DB_Dump::start( $note );
+		if ( is_wp_error( $job ) ) {
+			wp_send_json_error( array( 'message' => $job->get_error_message() ) );
+		}
 
 		TKVault_Runner::dispatch( $job['id'] );
 

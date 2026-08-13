@@ -29,6 +29,7 @@ require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-preflight.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-jobs.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-runner.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db.php';
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db-dump.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-scheduler.php';
@@ -37,6 +38,7 @@ require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-admin.php';
 add_filter( 'cron_schedules', array( 'TKVault_Scheduler', 'add_cron_intervals' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 
 TKVault_Runner::init();
+TKVault_DB_Dump::init();
 
 register_activation_hook( __FILE__, 'tkvault_activate' );
 register_deactivation_hook( __FILE__, 'tkvault_deactivate' );

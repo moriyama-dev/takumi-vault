@@ -90,10 +90,10 @@ $tkvault_labels = array(
 		<?php esc_html_e( 'If loopback requests are blocked, the job advances while this page is open instead. Either way it should reach 100%.', 'takumi-vault' ); ?>
 	</p>
 
-	<div class="tkvault-job" data-job="0">
+	<div class="tkvault-job" data-job="0" data-start-action="tkvault_start_selftest">
 		<p>
-			<button class="button button-primary" id="tkvault-start-selftest"><?php esc_html_e( 'Run self-test', 'takumi-vault' ); ?></button>
-			<button class="button" id="tkvault-cancel-job" style="display:none;"><?php esc_html_e( 'Cancel', 'takumi-vault' ); ?></button>
+			<button class="button button-primary tkvault-job-start"><?php esc_html_e( 'Run self-test', 'takumi-vault' ); ?></button>
+			<button class="button tkvault-job-cancel" style="display:none;"><?php esc_html_e( 'Cancel', 'takumi-vault' ); ?></button>
 		</p>
 		<div class="tkvault-progress" style="display:none;">
 			<div class="tkvault-progress-bar"><span style="width:0%"></span></div>

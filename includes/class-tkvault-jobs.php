@@ -289,8 +289,10 @@ class TKVault_Jobs {
 	public static function cancel( $id ) {
 		global $wpdb;
 
+		$job   = self::get( $id );
 		$table = self::table();
-		return (bool) $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+
+		$cancelled = (bool) $wpdb->query( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
 				"UPDATE {$table} SET status = %s, lock_token = NULL, updated_at = %s
 					WHERE id = %d AND status IN ( %s, %s )", // phpcs:ignore WordPress.DB.PreparedSQL
@@ -301,6 +303,14 @@ class TKVault_Jobs {
 				self::STATUS_RUNNING
 			)
 		);
+
+		if ( $cancelled ) {
+			// Handlers listen for this to remove half-written output. A
+			// cancelled backup must not leave an archive that looks finished.
+			do_action( 'tkvault_job_cancelled', $job );
+		}
+
+		return $cancelled;
 	}
 
 	public static function is_open( $job ) {

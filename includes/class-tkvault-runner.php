@@ -19,6 +19,16 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Thrown by a handler when retrying cannot help.
+ *
+ * An ordinary exception means "this attempt failed"; the runner retries and
+ * only gives up at the attempt cap. Some failures are known-final - a row
+ * count that does not add up, a destination that vanished - and burning five
+ * attempts on them just delays the report.
+ */
+class TKVault_Job_Fatal extends RuntimeException {}
+
 class TKVault_Runner {
 
 	const LOOPBACK_ACTION = 'tkvault_run_job';
@@ -74,10 +84,16 @@ class TKVault_Runner {
 		$limit = (int) ini_get( 'max_execution_time' );
 
 		if ( $limit <= 0 ) {
-			return self::DEFAULT_BUDGET; // 0 or -1 means unlimited.
+			/** This filter is documented below. */
+			return (float) apply_filters( 'tkvault_job_budget', self::DEFAULT_BUDGET ); // 0 or -1 means unlimited.
 		}
 
-		return max( 5.0, $limit * self::BUDGET_FRACTION );
+		/**
+		 * Filters how long one request may spend advancing a job.
+		 *
+		 * @param float $budget Seconds.
+		 */
+		return (float) apply_filters( 'tkvault_job_budget', max( 5.0, $limit * self::BUDGET_FRACTION ) );
 	}
 
 	/**
@@ -123,7 +139,11 @@ class TKVault_Runner {
 		}
 		ignore_user_abort( true );
 
-		while ( microtime( true ) - $started < $budget ) {
+		// A do-while, not a while: the budget must never be able to stop the
+		// first chunk. Testing it up front means a host that is already out of
+		// time hands the job straight back, and the job advances no further on
+		// every attempt until the watchdog gives up on it.
+		do {
 			// Cancellation must take effect between chunks, not only at the
 			// start of a request.
 			$current = TKVault_Jobs::get( $job_id );
@@ -133,7 +153,12 @@ class TKVault_Runner {
 			}
 
 			try {
-				$result = call_user_func( $handler, $state, $payload );
+				$result = call_user_func( $handler, $state, $payload, $job_id );
+			} catch ( TKVault_Job_Fatal $e ) {
+				// Known-final. Do not spend the attempt budget on it.
+				TKVault_Jobs::release( $job_id, $token );
+				TKVault_Jobs::finish( $job_id, TKVault_Jobs::STATUS_FAILED, $e->getMessage() );
+				return self::snapshot( TKVault_Jobs::get( $job_id ) );
 			} catch ( Throwable $e ) {
 				TKVault_Jobs::release( $job_id, $token );
 				TKVault_Jobs::update( $job_id, array( 'message' => $e->getMessage() ) );
@@ -145,6 +170,11 @@ class TKVault_Runner {
 			$processed += isset( $result['processed'] ) ? (int) $result['processed'] : 0;
 			$done       = ! empty( $result['done'] );
 
+			// A handler only learns the real size of the work once it starts.
+			if ( isset( $result['total'] ) ) {
+				TKVault_Jobs::update( $job_id, array( 'total' => (int) $result['total'] ) );
+			}
+
 			TKVault_Jobs::set_state( $job_id, $state, $processed );
 
 			if ( ! TKVault_Jobs::heartbeat( $job_id, $token ) ) {
@@ -155,7 +185,7 @@ class TKVault_Runner {
 			if ( $done ) {
 				break;
 			}
-		}
+		} while ( microtime( true ) - $started < $budget );
 
 		if ( $done ) {
 			TKVault_Jobs::finish( $job_id, TKVault_Jobs::STATUS_COMPLETE );

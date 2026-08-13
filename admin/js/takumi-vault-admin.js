@@ -39,14 +39,11 @@
 	// Job progress. Polling is not only for display: each poll advances the
 	// job server-side, which is what carries it to completion on hosts where
 	// loopback requests are blocked.
-	( function () {
-		var $panel = $( '.tkvault-job' );
-		if ( ! $panel.length ) {
-			return;
-		}
+	$( '.tkvault-job' ).each( function () {
+		var $panel = $( this );
 
-		var $start    = $( '#tkvault-start-selftest' );
-		var $cancel   = $( '#tkvault-cancel-job' );
+		var $start    = $panel.find( '.tkvault-job-start' );
+		var $cancel   = $panel.find( '.tkvault-job-cancel' );
 		var $progress = $panel.find( '.tkvault-progress' );
 		var $bar      = $panel.find( '.tkvault-progress-bar span' );
 		var $text     = $panel.find( '.tkvault-progress-text' );
@@ -80,7 +77,7 @@
 				window.clearTimeout( timer );
 				timer = null;
 			}
-			$start.prop( 'disabled', false ).text( tkvaultAdmin.i18n.selfTest );
+			$start.prop( 'disabled', false ).text( idleLabel );
 			$cancel.hide();
 		}
 
@@ -108,6 +105,8 @@
 			} );
 		}
 
+		var idleLabel = $start.text();
+
 		$start.on( 'click', function ( e ) {
 			e.preventDefault();
 			$start.prop( 'disabled', true ).text( tkvaultAdmin.i18n.jobStarting );
@@ -115,9 +114,10 @@
 			$cancel.show();
 
 			$.post( tkvaultAdmin.ajaxUrl, {
-				action : 'tkvault_start_selftest',
+				action : $panel.data( 'start-action' ),
 				nonce  : tkvaultAdmin.nonce,
 				chunks : 20,
+				note   : $( $panel.data( 'note-field' ) ).val() || '',
 			} )
 			.done( function ( res ) {
 				if ( ! res.success ) {
@@ -147,38 +147,6 @@
 					render( res.data );
 				}
 			} );
-		} );
-	} )();
-
-	// Run backup from dashboard.
-	$( '#tkvault-run-backup' ).on( 'click', function () {
-		var $btn    = $( this );
-		var type    = $( '#tkvault-backup-type' ).val();
-		var note    = $( '#tkvault-backup-note' ).val();
-		var $result = $( '#tkvault-backup-result' );
-
-		$btn.prop( 'disabled', true ).text( tkvaultAdmin.i18n.running );
-		$result.hide();
-
-		$.post( tkvaultAdmin.ajaxUrl, {
-			action : 'tkvault_run_backup',
-			nonce  : tkvaultAdmin.nonce,
-			type   : type,
-			note   : note,
-		} )
-		.done( function ( res ) {
-			if ( res.success ) {
-				showResult( $result, res.data.message, false );
-				setTimeout( function () { location.reload(); }, 1500 );
-			} else {
-				showResult( $result, res.data.message, true );
-			}
-		} )
-		.fail( function () {
-			showResult( $result, tkvaultAdmin.i18n.error, true );
-		} )
-		.always( function () {
-			$btn.prop( 'disabled', false ).text( tkvaultAdmin.i18n.idle );
 		} );
 	} );
 
