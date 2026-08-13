@@ -99,6 +99,20 @@ $tkvault_value     = $tkvault_error && ! empty( $tkvault_error['attempted'] ) ? 
 			</tr>
 			<tr>
 				<th scope="row">
+					<label for="tkvault_old_table_retention_days"><?php esc_html_e( 'Keep the previous database for', 'takumi-vault' ); ?></label>
+				</th>
+				<td>
+					<input type="number" id="tkvault_old_table_retention_days" name="tkvault_old_table_retention_days"
+						value="<?php echo esc_attr( TKVault_DB_Restore::retention_days() ); ?>"
+						min="-1" max="365" class="small-text">
+					<?php esc_html_e( 'days', 'takumi-vault' ); ?>
+					<p class="description">
+						<?php esc_html_e( 'After a restore, the database it replaced is kept so the restore can be undone. It is a second full copy, so it roughly doubles the size of the database until it is removed. Use 0 to remove it immediately, or -1 to keep it indefinitely.', 'takumi-vault' ); ?>
+					</p>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
 					<label for="tkvault_notify_email"><?php esc_html_e( 'Notification email', 'takumi-vault' ); ?></label>
 				</th>
 				<td>

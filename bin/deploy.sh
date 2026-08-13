@@ -22,6 +22,7 @@ rsync -a --delete \
 	--exclude '.git' \
 	--exclude '.gitignore' \
 	--exclude 'bin/' \
+	--exclude 'tests/' \
 	--exclude 'dist/' \
 	--exclude 'README.md' \
 	--exclude 'languages/*.po' \

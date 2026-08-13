@@ -71,4 +71,31 @@
 	<?php endif; ?>
 
 	<div id="tkvault-list-result" class="tkvault-notice" style="display:none;"></div>
+
+	<div class="tkvault-job" data-job="0" data-start-action="tkvault_start_restore" data-backup-id="0">
+		<button class="button tkvault-job-start" style="display:none;"></button>
+		<div class="tkvault-progress" style="display:none;">
+			<div class="tkvault-progress-bar"><span style="width:0%"></span></div>
+			<p class="tkvault-progress-text"></p>
+		</div>
+		<p>
+			<button class="button tkvault-job-cancel" style="display:none;"><?php esc_html_e( 'Cancel', 'takumi-vault' ); ?></button>
+		</p>
+	</div>
+
+	<?php if ( get_option( TKVault_DB_Restore::OPTION_OLD_TABLES ) ) : ?>
+		<div class="tkvault-card" style="margin-top:24px;">
+			<h2><?php esc_html_e( 'Undo the last restore', 'takumi-vault' ); ?></h2>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %d: number of days the previous database is kept */
+					esc_html__( 'The database replaced by the last restore is still here and can be put back. It is removed automatically after %d days.', 'takumi-vault' ),
+					(int) TKVault_DB_Restore::retention_days()
+				);
+				?>
+			</p>
+			<p><button class="button" id="tkvault-undo-restore"><?php esc_html_e( 'Put the previous database back', 'takumi-vault' ); ?></button></p>
+		</div>
+	<?php endif; ?>
 </div>

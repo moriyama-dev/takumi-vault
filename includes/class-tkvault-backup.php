@@ -194,7 +194,7 @@ class TKVault_Backup {
 		global $wpdb;
 		return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			$wpdb->prepare(
-				"SELECT * FROM {$wpdb->prefix}tkvault_backups ORDER BY created_at DESC LIMIT 9999 OFFSET %d",
+				"SELECT * FROM {$wpdb->prefix}tkvault_backups WHERE type != 'db-safety' ORDER BY created_at DESC LIMIT 9999 OFFSET %d",
 				$keep
 			)
 		);

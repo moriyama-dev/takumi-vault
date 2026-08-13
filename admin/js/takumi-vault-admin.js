@@ -114,10 +114,12 @@
 			$cancel.show();
 
 			$.post( tkvaultAdmin.ajaxUrl, {
-				action : $panel.data( 'start-action' ),
-				nonce  : tkvaultAdmin.nonce,
-				chunks : 20,
-				note   : $( $panel.data( 'note-field' ) ).val() || '',
+				action        : $panel.data( 'start-action' ),
+				nonce         : tkvaultAdmin.nonce,
+				chunks        : 20,
+				note          : $( $panel.data( 'note-field' ) ).val() || '',
+				backup_id     : $panel.attr( 'data-backup-id' ) || 0,
+				confirm_space : $panel.attr( 'data-confirm-space' ) || '',
 			} )
 			.done( function ( res ) {
 				if ( ! res.success ) {
@@ -150,32 +152,50 @@
 		} );
 	} );
 
-	// Restore from backup list.
-	$( document ).on( 'click', '.tkvault-restore-btn', function () {
+	// Restore from the backup list. The row button only points the shared job
+	// panel at a backup; the panel does the work and shows progress.
+	$( document ).on( 'click', '.tkvault-restore-btn', function ( e ) {
+		e.preventDefault();
 		if ( ! window.confirm( tkvaultAdmin.i18n.confirmRestore ) ) {
 			return;
 		}
-		var $btn     = $( this );
-		var label    = $btn.text();
-		var backupId = $btn.data( 'id' );
-		var $result  = $( '#tkvault-list-result' );
+
+		var $panel = $( '.tkvault-job[data-start-action="tkvault_start_restore"]' );
+		$panel.attr( 'data-backup-id', $( this ).data( 'id' ) );
+		$panel.attr( 'data-confirm-space', '1' );
+		$panel.find( '.tkvault-job-start' ).trigger( 'click' );
+	} );
+
+	// The restore panel has no start button of its own, so give it one the
+	// row buttons can trigger.
+	$( '.tkvault-job[data-start-action="tkvault_start_restore"]' ).each( function () {
+		if ( ! $( this ).find( '.tkvault-job-start' ).length ) {
+			$( this ).prepend( '<button class="button tkvault-job-start" style="display:none;"></button>' );
+		}
+	} );
+
+	$( '#tkvault-undo-restore' ).on( 'click', function ( e ) {
+		e.preventDefault();
+		var $btn    = $( this );
+		var $result = $( '#tkvault-list-result' );
 
 		$btn.prop( 'disabled', true ).text( tkvaultAdmin.i18n.running );
 
 		$.post( tkvaultAdmin.ajaxUrl, {
-			action    : 'tkvault_run_restore',
-			nonce     : tkvaultAdmin.nonce,
-			backup_id : backupId,
-			type      : 'full',
+			action : 'tkvault_undo_restore',
+			nonce  : tkvaultAdmin.nonce,
 		} )
 		.done( function ( res ) {
 			showResult( $result, res.data.message, ! res.success );
+			if ( res.success ) {
+				setTimeout( function () { location.reload(); }, 1500 );
+			}
 		} )
 		.fail( function () {
 			showResult( $result, tkvaultAdmin.i18n.error, true );
 		} )
 		.always( function () {
-			$btn.prop( 'disabled', false ).text( label );
+			$btn.prop( 'disabled', false );
 		} );
 	} );
 

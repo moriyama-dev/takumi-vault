@@ -22,6 +22,8 @@ $tkvault_options = array(
 	'tkvault_probed_version',
 	'tkvault_setup_error',
 	'tkvault_settings_error',
+	'tkvault_old_tables',
+	'tkvault_old_table_retention_days',
 );
 
 foreach ( $tkvault_options as $tkvault_option ) {

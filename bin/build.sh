@@ -30,6 +30,7 @@ mkdir -p "${STAGE}"
 rsync -a \
 	--exclude '.*' \
 	--exclude 'bin/' \
+	--exclude 'tests/' \
 	--exclude 'dist/' \
 	--exclude 'node_modules/' \
 	--exclude 'README.md' \

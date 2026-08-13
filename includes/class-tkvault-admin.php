@@ -15,6 +15,8 @@ class TKVault_Admin {
 		add_action( 'wp_ajax_tkvault_start_selftest', array( $this, 'ajax_start_selftest' ) );
 		add_action( 'wp_ajax_tkvault_cancel_job', array( $this, 'ajax_cancel_job' ) );
 		add_action( 'wp_ajax_tkvault_start_backup', array( $this, 'ajax_start_backup' ) );
+		add_action( 'wp_ajax_tkvault_start_restore', array( $this, 'ajax_start_restore' ) );
+		add_action( 'wp_ajax_tkvault_undo_restore', array( $this, 'ajax_undo_restore' ) );
 	}
 
 	/**
@@ -76,6 +78,49 @@ class TKVault_Admin {
 		TKVault_Runner::dispatch( $job['id'] );
 
 		wp_send_json_success( TKVault_Runner::snapshot( TKVault_Jobs::get( $job['id'] ) ) );
+	}
+
+	/**
+	 * Queue a restore.
+	 *
+	 * The old synchronous handler is gone: a restore that cannot be watched is
+	 * a restore nobody can tell has stalled.
+	 */
+	public function ajax_start_restore() {
+		check_ajax_referer( 'tkvault_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'takumi-vault' ) ) );
+		}
+
+		$backup_id = isset( $_POST['backup_id'] ) ? absint( $_POST['backup_id'] ) : 0;
+		$confirm   = isset( $_POST['confirm_space'] ) && '1' === $_POST['confirm_space'];
+
+		if ( ! $backup_id ) {
+			wp_send_json_error( array( 'message' => __( 'Invalid backup ID.', 'takumi-vault' ) ) );
+		}
+
+		$job = TKVault_DB_Restore::start( $backup_id, $confirm );
+		if ( is_wp_error( $job ) ) {
+			wp_send_json_error( array( 'message' => $job->get_error_message() ) );
+		}
+
+		TKVault_Runner::dispatch( $job['id'] );
+
+		wp_send_json_success( TKVault_Runner::snapshot( TKVault_Jobs::get( $job['id'] ) ) );
+	}
+
+	public function ajax_undo_restore() {
+		check_ajax_referer( 'tkvault_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'takumi-vault' ) ) );
+		}
+
+		$result = TKVault_DB_Restore::undo();
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( array( 'message' => __( 'The previous database has been put back.', 'takumi-vault' ) ) );
 	}
 
 	public function ajax_cancel_job() {
@@ -401,6 +446,11 @@ class TKVault_Admin {
 		update_option( 'tkvault_keep_generations', $keep_generations );
 		update_option( 'tkvault_notify_email', $notify_email );
 		update_option( 'tkvault_notify_on_success', $notify_on_success );
+
+		if ( isset( $_POST['tkvault_old_table_retention_days'] ) ) {
+			$retention = (int) $_POST['tkvault_old_table_retention_days'];
+			update_option( TKVault_DB_Restore::OPTION_RETENTION, max( -1, min( 365, $retention ) ) );
+		}
 
 		$scheduler = new TKVault_Scheduler();
 		if ( 'none' === $schedule ) {

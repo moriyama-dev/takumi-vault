@@ -185,9 +185,32 @@ class TKVault_DB_Dump {
 			}
 		}
 
+		$tables = self::without_plugin_scratch( $tables );
+
 		sort( $tables );
 
 		return apply_filters( 'tkvault_dump_tables', $tables, $all_tables );
+	}
+
+	/**
+	 * Drop the plugin's own working tables from the backup scope.
+	 *
+	 * Both kinds match the site prefix, so they would otherwise be treated as
+	 * site data. The displaced copies a restore leaves behind are a second
+	 * full database - including them would roughly double the size of every
+	 * backup taken after a restore, and restoring such a backup would bring
+	 * the displaced copies back to life as well.
+	 */
+	private static function without_plugin_scratch( array $tables ) {
+		return array_values(
+			array_filter(
+				$tables,
+				static function ( $name ) {
+					return 0 !== strpos( $name, TKVault_DB_Restore::TEMP_PREFIX )
+						&& substr( $name, -strlen( TKVault_DB_Restore::OLD_SUFFIX ) ) !== TKVault_DB_Restore::OLD_SUFFIX;
+				}
+			)
+		);
 	}
 
 	private static function table_exists( $name ) {
@@ -400,7 +423,10 @@ class TKVault_DB_Dump {
 		TKVault_DB::insert_backup(
 			array(
 				'filename' => basename( $file ),
-				'type'     => 'db',
+				// Safety copies taken before a restore are excluded from
+				// generation pruning: the one backup you need after a bad
+				// restore must not be the one the retention policy deleted.
+				'type'     => empty( $payload['safety'] ) ? 'db' : 'db-safety',
 				'size'     => (int) filesize( $file ),
 				'status'   => 'completed',
 				'note'     => isset( $payload['note'] ) ? $payload['note'] : '',

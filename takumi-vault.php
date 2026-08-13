@@ -30,6 +30,8 @@ require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-jobs.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-runner.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db-dump.php';
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-sql-reader.php';
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-scheduler.php';
@@ -39,6 +41,7 @@ add_filter( 'cron_schedules', array( 'TKVault_Scheduler', 'add_cron_intervals' )
 
 TKVault_Runner::init();
 TKVault_DB_Dump::init();
+TKVault_DB_Restore::init();
 
 register_activation_hook( __FILE__, 'tkvault_activate' );
 register_deactivation_hook( __FILE__, 'tkvault_deactivate' );
@@ -59,12 +62,14 @@ function tkvault_activate() {
 
 	TKVault_Scheduler::schedule_reprobe_event();
 	TKVault_Runner::schedule_watchdog();
+	TKVault_DB_Restore::schedule_cleanup();
 }
 
 function tkvault_deactivate() {
 	TKVault_Scheduler::clear_scheduled_events();
 	TKVault_Scheduler::clear_reprobe_event();
 	TKVault_Runner::clear_watchdog();
+	TKVault_DB_Restore::clear_cleanup();
 }
 
 /**

@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-12T02:14:27+00:00\n"
+"POT-Creation-Date: 2026-08-13T20:57:13+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: takumi-vault\n"
@@ -36,8 +36,8 @@ msgid "Yoshiro Moriyama (Takumi Web Services)"
 msgstr ""
 
 #: admin/views/backup-list.php:3
-#: includes/class-tkvault-admin.php:161
-#: includes/class-tkvault-admin.php:162
+#: includes/class-tkvault-admin.php:206
+#: includes/class-tkvault-admin.php:207
 msgid "Backups"
 msgstr ""
 
@@ -81,9 +81,29 @@ msgstr ""
 msgid "Delete"
 msgstr ""
 
+#: admin/views/backup-list.php:82
+#: admin/views/dashboard.php:92
+#: admin/views/preflight.php:96
+msgid "Cancel"
+msgstr ""
+
+#: admin/views/backup-list.php:88
+msgid "Undo the last restore"
+msgstr ""
+
+#. translators: %d: number of days the previous database is kept
+#: admin/views/backup-list.php:93
+#, php-format
+msgid "The database replaced by the last restore is still here and can be put back. It is removed automatically after %d days."
+msgstr ""
+
+#: admin/views/backup-list.php:98
+msgid "Put the previous database back"
+msgstr ""
+
 #: admin/views/dashboard.php:3
-#: includes/class-tkvault-admin.php:141
-#: includes/class-tkvault-admin.php:142
+#: includes/class-tkvault-admin.php:186
+#: includes/class-tkvault-admin.php:187
 msgid "Takumi Vault"
 msgstr ""
 
@@ -145,13 +165,8 @@ msgid "e.g. before the theme change"
 msgstr ""
 
 #: admin/views/dashboard.php:89
-#: includes/class-tkvault-admin.php:221
+#: includes/class-tkvault-admin.php:266
 msgid "Start backup"
-msgstr ""
-
-#: admin/views/dashboard.php:92
-#: admin/views/preflight.php:96
-msgid "Cancel"
 msgstr ""
 
 #: admin/views/preflight.php:15
@@ -167,8 +182,8 @@ msgid "Blocks backups"
 msgstr ""
 
 #: admin/views/preflight.php:21
-#: includes/class-tkvault-admin.php:179
-#: includes/class-tkvault-admin.php:180
+#: includes/class-tkvault-admin.php:224
+#: includes/class-tkvault-admin.php:225
 msgid "Diagnostics"
 msgstr ""
 
@@ -237,13 +252,13 @@ msgid "If loopback requests are blocked, the job advances while this page is ope
 msgstr ""
 
 #: admin/views/preflight.php:95
-#: includes/class-tkvault-admin.php:231
+#: includes/class-tkvault-admin.php:276
 msgid "Run self-test"
 msgstr ""
 
 #: admin/views/settings.php:9
-#: includes/class-tkvault-admin.php:170
-#: includes/class-tkvault-admin.php:171
+#: includes/class-tkvault-admin.php:215
+#: includes/class-tkvault-admin.php:216
 msgid "Settings"
 msgstr ""
 
@@ -306,152 +321,171 @@ msgid "Older backups beyond this count are deleted automatically."
 msgstr ""
 
 #: admin/views/settings.php:102
-msgid "Notification email"
+msgid "Keep the previous database for"
 msgstr ""
 
-#: admin/views/settings.php:111
-msgid "Success notices"
+#: admin/views/settings.php:108
+msgid "days"
+msgstr ""
+
+#: admin/views/settings.php:110
+msgid "After a restore, the database it replaced is kept so the restore can be undone. It is a second full copy, so it roughly doubles the size of the database until it is removed. Use 0 to remove it immediately, or -1 to keep it indefinitely."
 msgstr ""
 
 #: admin/views/settings.php:116
+msgid "Notification email"
+msgstr ""
+
+#: admin/views/settings.php:125
+msgid "Success notices"
+msgstr ""
+
+#: admin/views/settings.php:130
 msgid "Email me when a backup finishes"
 msgstr ""
 
-#: admin/views/settings.php:122
+#: admin/views/settings.php:136
 msgid "Save settings"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:30
-#: includes/class-tkvault-admin.php:55
-#: includes/class-tkvault-admin.php:84
-#: includes/class-tkvault-admin.php:261
-#: includes/class-tkvault-admin.php:280
-#: includes/class-tkvault-admin.php:303
-#: includes/class-tkvault-admin.php:353
-#: includes/class-tkvault-admin.php:381
+#: includes/class-tkvault-admin.php:32
+#: includes/class-tkvault-admin.php:57
+#: includes/class-tkvault-admin.php:92
+#: includes/class-tkvault-admin.php:115
+#: includes/class-tkvault-admin.php:129
+#: includes/class-tkvault-admin.php:306
+#: includes/class-tkvault-admin.php:325
+#: includes/class-tkvault-admin.php:348
+#: includes/class-tkvault-admin.php:398
+#: includes/class-tkvault-admin.php:426
 #: includes/class-tkvault-backup.php:8
 #: includes/class-tkvault-restore.php:8
 #: includes/class-tkvault-runner.php:335
 msgid "You do not have permission to do that."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:67
+#: includes/class-tkvault-admin.php:69
 msgid "The backup directory is downloadable over HTTP. Change the destination before backing up."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:89
+#: includes/class-tkvault-admin.php:99
+#: includes/class-tkvault-admin.php:332
+#: includes/class-tkvault-admin.php:353
+msgid "Invalid backup ID."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:123
+msgid "The previous database has been put back."
+msgstr ""
+
+#: includes/class-tkvault-admin.php:134
 #: includes/class-tkvault-runner.php:340
 msgid "Invalid job."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:113
-#: includes/class-tkvault-admin.php:131
+#: includes/class-tkvault-admin.php:158
+#: includes/class-tkvault-admin.php:176
 msgid "Takumi Vault:"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:114
+#: includes/class-tkvault-admin.php:159
 msgid "the backup directory can be downloaded over HTTP. Anyone who guesses the path can take a copy of your database. Move it to a directory outside the web root."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:116
+#: includes/class-tkvault-admin.php:161
 msgid "Change the destination"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:122
+#: includes/class-tkvault-admin.php:167
 msgid "Takumi Vault: this destination used to be private and is not any more, so scheduled backups have been stopped. Re-enable them once the destination is safe again."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:132
+#: includes/class-tkvault-admin.php:177
 msgid "no backup destination is configured, so backups cannot run."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:134
+#: includes/class-tkvault-admin.php:179
 msgid "Set one now"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:152
-#: includes/class-tkvault-admin.php:153
+#: includes/class-tkvault-admin.php:197
+#: includes/class-tkvault-admin.php:198
 msgid "Dashboard"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:189
-#: includes/class-tkvault-admin.php:239
-#: includes/class-tkvault-admin.php:246
-#: includes/class-tkvault-admin.php:253
+#: includes/class-tkvault-admin.php:234
+#: includes/class-tkvault-admin.php:284
+#: includes/class-tkvault-admin.php:291
+#: includes/class-tkvault-admin.php:298
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:218
+#: includes/class-tkvault-admin.php:263
 msgid "Restoring will overwrite your current data. Continue?"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:219
+#: includes/class-tkvault-admin.php:264
 msgid "Delete this backup?"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:220
+#: includes/class-tkvault-admin.php:265
 msgid "Working..."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:222
+#: includes/class-tkvault-admin.php:267
 msgid "Done."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:223
+#: includes/class-tkvault-admin.php:268
 msgid "Something went wrong."
 msgstr ""
 
 #. translators: 1: chunks processed so far, 2: total chunks
-#: includes/class-tkvault-admin.php:225
+#: includes/class-tkvault-admin.php:270
 #, php-format
 msgid "Running: %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: chunks processed, 2: total chunks
-#: includes/class-tkvault-admin.php:227
+#: includes/class-tkvault-admin.php:272
 #, php-format
 msgid "Finished: %1$d of %2$d chunks processed."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:228
+#: includes/class-tkvault-admin.php:273
 msgid "Failed."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:229
+#: includes/class-tkvault-admin.php:274
 msgid "Cancelled."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:230
+#: includes/class-tkvault-admin.php:275
 msgid "Starting..."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:274
+#: includes/class-tkvault-admin.php:319
 msgid "Backup complete."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:287
-#: includes/class-tkvault-admin.php:308
-msgid "Invalid backup ID."
-msgstr ""
-
-#: includes/class-tkvault-admin.php:297
+#: includes/class-tkvault-admin.php:342
 msgid "Restore complete."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:320
+#: includes/class-tkvault-admin.php:365
 msgid "Deleted."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:361
+#: includes/class-tkvault-admin.php:406
 #: includes/class-tkvault-restore.php:13
 msgid "Backup not found."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:366
+#: includes/class-tkvault-admin.php:411
 msgid "Backup file not found."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:441
+#: includes/class-tkvault-admin.php:491
 msgid "Enter an absolute path."
 msgstr ""
 
@@ -491,29 +525,141 @@ msgid "Could not open the dump file for writing."
 msgstr ""
 
 #. translators: 1: table name, 2: rows written, 3: row count before, 4: row count after
-#: includes/class-tkvault-db-dump.php:361
+#: includes/class-tkvault-db-dump.php:384
 #, php-format
 msgid "Rows were lost dumping %1$s: wrote %2$s, but the table held %3$s before and %4$s after. The backup was stopped rather than saved incomplete."
 msgstr ""
 
-#: includes/class-tkvault-db-dump.php:397
+#: includes/class-tkvault-db-dump.php:420
 msgid "Could not write the backup manifest."
 msgstr ""
 
 #. translators: %s: table name
-#: includes/class-tkvault-db-dump.php:505
+#: includes/class-tkvault-db-dump.php:531
 #, php-format
 msgid "Could not read the schema for %s."
 msgstr ""
 
 #. translators: %s: rejected identifier
-#: includes/class-tkvault-db-dump.php:649
+#: includes/class-tkvault-db-dump.php:675
 #, php-format
 msgid "Refusing to use %s as a table or column name."
 msgstr ""
 
-#: includes/class-tkvault-db-dump.php:681
+#: includes/class-tkvault-db-dump.php:707
 msgid "Could not append to the dump file."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:61
+msgid "That backup does not exist."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:68
+msgid "The backup file is missing from the destination."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:124
+msgid "The backup manifest does not match its own checksum. Refusing to restore from it."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:134
+msgid "The manifest does not describe this archive."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:137
+msgid "The archive does not match the checksum recorded when it was created. It is damaged or was modified."
+msgstr ""
+
+#. translators: 1: prefix in the backup, 2: prefix of this site
+#: includes/class-tkvault-db-restore.php:147
+#, php-format
+msgid "This backup was taken from a site using the table prefix %1$s, but this site uses %2$s. Restoring across prefixes is not supported."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:181
+msgid "This backup has no manifest, so it cannot be verified before restoring."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:186
+msgid "The backup manifest could not be read."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:232
+msgid "The archive has no end marker, so it was truncated before it finished being written. Refusing to restore a partial dump."
+msgstr ""
+
+#. translators: 1: tables found, 2: tables expected
+#: includes/class-tkvault-db-restore.php:240
+#, php-format
+msgid "The archive contains %1$s tables but the manifest describes %2$s. Refusing to restore."
+msgstr ""
+
+#. translators: 1: largest statement size, 2: server limit
+#: includes/class-tkvault-db-restore.php:252
+#, php-format
+msgid "The archive contains a statement of %1$s bytes, larger than this server accepts (%2$s). It would fail part way through."
+msgstr ""
+
+#. translators: %s: estimated space needed, human readable
+#: includes/class-tkvault-db-restore.php:324
+#, php-format
+msgid "Free space cannot be measured on this host. The restore needs roughly %s while both copies exist. Confirm you have that available and start again."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:329
+msgid "Free space could not be verified before restoring."
+msgstr ""
+
+#. translators: 1: space needed, 2: space available
+#: includes/class-tkvault-db-restore.php:334
+#, php-format
+msgid "Not enough room to restore: about %1$s is needed while the old and new copies both exist, and %2$s is free."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:344
+msgid "Space was checked against the WordPress filesystem, which may not be where the database is stored."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:370
+msgid "Automatic safety copy taken before a restore"
+msgstr ""
+
+#. translators: 1: database error, 2: first part of the failing statement
+#: includes/class-tkvault-db-restore.php:495
+#, php-format
+msgid "The restore stopped on a statement the database rejected: %1$s (%2$s). Nothing was changed; the temporary tables have been removed."
+msgstr ""
+
+#. translators: %s: table name
+#: includes/class-tkvault-db-restore.php:571
+#, php-format
+msgid "Refusing to run a statement that targets %s instead of a temporary table. This is a bug; nothing was changed."
+msgstr ""
+
+#. translators: %s: table name
+#: includes/class-tkvault-db-restore.php:598
+#, php-format
+msgid "The imported copy of %s is missing, so the swap was not attempted."
+msgstr ""
+
+#. translators: %s: database error
+#: includes/class-tkvault-db-restore.php:633
+#, php-format
+msgid "The swap failed and was rolled back: %s. The site is unchanged."
+msgstr ""
+
+#. translators: 1: address stored in the backup, 2: address of this site
+#: includes/class-tkvault-db-restore.php:672
+#, php-format
+msgid "The backup was taken at %1$s. The site address has been kept as %2$s so this install stays reachable, but URLs stored inside posts and options still point at the old address."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:732
+msgid "There is no restore to undo."
+msgstr ""
+
+#: includes/class-tkvault-db-restore.php:756
+msgid "None of the saved copies are still there, so the restore cannot be undone."
 msgstr ""
 
 #: includes/class-tkvault-preflight.php:58
@@ -726,6 +872,10 @@ msgid ""
 "The Takumi Vault backup failed.\n"
 "\n"
 "Error: %s"
+msgstr ""
+
+#: includes/class-tkvault-sql-reader.php:73
+msgid "Could not open the backup archive."
 msgstr ""
 
 #: includes/class-tkvault-storage.php:105
