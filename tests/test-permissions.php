@@ -297,6 +297,94 @@ $GLOBALS['wpdb']->query( 'DELETE FROM ' . $GLOBALS['wpdb']->prefix . 'tkvault_ba
 tkv_unblock_loopback();
 
 /* ================================================================= */
+tkv_section( '8. a directory already at the right mode is not a failure' );
+
+// The regression this exists to stop: chmod() fails for anyone who does not
+// own the directory, and once the destination is set up, every later request
+// is made by somebody who does not own it - the web server, where the account
+// user created it. tighten() returned null, record_modes() stored null, and
+// Diagnostics announced "the permissions could not be set" about a directory
+// that was exactly as it should be.
+class TKVault_Test_FS_No_Chmod {
+	public $failed = 0;
+	public function chmod( $file, $mode = false, $recursive = false ) {
+		$this->failed++;
+		return false;                       // Every chmod refused, as for a non-owner.
+	}
+	public function __call( $name, $args ) {
+		return false;
+	}
+}
+
+$target = $sandbox . '/already';
+mkdir( $target, 0755, true );
+
+chmod( $fake_up, 0775 );                    // Shared-group site, so 02770 is wanted.
+tkv_fake_uploads( $fake_up );
+$want = $preferred->invoke( null, $target );
+chmod( $target, $want );
+clearstatcache( true, $target );
+tkv_check( 'the directory starts at the wanted mode', tkv_mode( $target ), $want & 0777 );
+
+$real_fs                   = isset( $GLOBALS['wp_filesystem'] ) ? $GLOBALS['wp_filesystem'] : null;
+$stub                      = new TKVault_Test_FS_No_Chmod();
+$GLOBALS['wp_filesystem']  = $stub;
+
+$got = $tighten->invoke( null, $target );
+
+$GLOBALS['wp_filesystem'] = $real_fs;
+
+tkv_check( 'tightening still reports the mode', $got, $want );
+tkv_check( 'without a successful chmod behind it', $stub->failed, 0 );
+
+// And a directory that is genuinely wrong, with chmod refused, still fails -
+// otherwise the check would be useless.
+chmod( $target, 0777 );
+clearstatcache( true, $target );
+$stub                     = new TKVault_Test_FS_No_Chmod();
+$GLOBALS['wp_filesystem'] = $stub;
+
+$got = $tighten->invoke( null, $target );
+
+$GLOBALS['wp_filesystem'] = $real_fs;
+
+tkv_check( 'a wrong mode that cannot be fixed still reports failure', $got, null );
+tkv_check( 'and it did try', $stub->failed > 0, true );
+
+/* ----------------------------------------------------------------- */
+tkv_section( '9. a fallback is not a warning' );
+
+// "Falls back" reads correctly for a host without ZipArchive. Against a
+// permission problem it reads as nonsense, so the two are separate states.
+$statuses = array();
+foreach ( TKVault_Preflight::run( false ) as $row ) {
+	$statuses[ $row['label'] ] = $row['status'];
+}
+
+tkv_check(
+	'the permission row never reports itself as a fallback',
+	TKVault_Preflight::FALLBACK === $statuses['Destination permissions'],
+	false
+);
+tkv_check(
+	'nor does the exposure row',
+	TKVault_Preflight::FALLBACK === $statuses['Public exposure'],
+	false
+);
+tkv_check( 'and the two states are distinct', TKVault_Preflight::FALLBACK === TKVault_Preflight::WARN, false );
+
+// Every status a check can return has to have a label, or the Diagnostics
+// table renders an undefined index where the verdict should be.
+$labels = array( TKVault_Preflight::OK, TKVault_Preflight::WARN, TKVault_Preflight::FALLBACK, TKVault_Preflight::STOP );
+$unknown = array();
+foreach ( $statuses as $label => $status ) {
+	if ( ! in_array( $status, $labels, true ) ) {
+		$unknown[] = $label . '=' . $status;
+	}
+}
+tkv_check( 'no check returns a status the view cannot label', $unknown, array() );
+
+/* ================================================================= */
 tkv_section( 'cleanup' );
 
 remove_all_filters( 'upload_dir', 99 );

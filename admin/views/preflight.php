@@ -13,7 +13,8 @@ $tkvault_stops  = TKVault_Preflight::blockers( $tkvault_checks );
 
 $tkvault_labels = array(
 	TKVault_Preflight::OK   => __( 'OK', 'takumi-vault' ),
-	TKVault_Preflight::WARN => __( 'Falls back', 'takumi-vault' ),
+	TKVault_Preflight::FALLBACK => __( 'Falls back', 'takumi-vault' ),
+	TKVault_Preflight::WARN     => __( 'Worth checking', 'takumi-vault' ),
 	TKVault_Preflight::STOP => __( 'Blocks backups', 'takumi-vault' ),
 );
 ?>

@@ -72,6 +72,26 @@
 
 	<div id="tkvault-list-result" class="tkvault-notice" style="display:none;"></div>
 
+	<div id="tkvault-restore-confirm" class="tkvault-confirm" style="display:none;" role="dialog" aria-modal="true" aria-labelledby="tkvault-confirm-title">
+		<div class="tkvault-confirm-box">
+			<h2 id="tkvault-confirm-title"><?php esc_html_e( 'Restore this backup?', 'takumi-vault' ); ?></h2>
+
+			<div class="tkvault-confirm-body"></div>
+
+			<p class="tkvault-confirm-agree">
+				<label>
+					<input type="checkbox" id="tkvault-confirm-understood">
+					<?php esc_html_e( 'I have read what this will replace.', 'takumi-vault' ); ?>
+				</label>
+			</p>
+
+			<p class="tkvault-confirm-actions">
+				<button class="button button-primary" id="tkvault-confirm-go" disabled><?php esc_html_e( 'Restore', 'takumi-vault' ); ?></button>
+				<button class="button" id="tkvault-confirm-cancel"><?php esc_html_e( 'Cancel', 'takumi-vault' ); ?></button>
+			</p>
+		</div>
+	</div>
+
 	<div class="tkvault-job" data-job="0" data-start-action="tkvault_start_restore" data-backup-id="0">
 		<button class="button tkvault-job-start" style="display:none;"></button>
 		<div class="tkvault-progress" style="display:none;">

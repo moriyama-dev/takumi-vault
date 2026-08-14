@@ -13,6 +13,7 @@ class TKVault_Admin {
 		add_action( 'wp_ajax_tkvault_start_selftest', array( $this, 'ajax_start_selftest' ) );
 		add_action( 'wp_ajax_tkvault_cancel_job', array( $this, 'ajax_cancel_job' ) );
 		add_action( 'wp_ajax_tkvault_start_backup', array( $this, 'ajax_start_backup' ) );
+		add_action( 'wp_ajax_tkvault_describe_restore', array( $this, 'ajax_describe_restore' ) );
 		add_action( 'wp_ajax_tkvault_start_restore', array( $this, 'ajax_start_restore' ) );
 		add_action( 'wp_ajax_tkvault_undo_restore', array( $this, 'ajax_undo_restore' ) );
 	}
@@ -280,6 +281,7 @@ class TKVault_Admin {
 				'i18n'    => array(
 					'confirmRestore' => __( 'Restoring will overwrite your current data. Continue?', 'takumi-vault' ),
 					'confirmDelete'  => __( 'Delete this backup?', 'takumi-vault' ),
+					'checking'       => __( 'Reading the backup...', 'takumi-vault' ),
 					'running'        => __( 'Working...', 'takumi-vault' ),
 					'idle'           => __( 'Start backup', 'takumi-vault' ),
 					'success'        => __( 'Done.', 'takumi-vault' ),
@@ -316,6 +318,174 @@ class TKVault_Admin {
 			wp_die( esc_html__( 'You do not have permission to access this page.', 'takumi-vault' ) );
 		}
 		include TKVAULT_PLUGIN_DIR . 'admin/views/settings.php';
+	}
+
+	/**
+	 * What restoring a given backup would do, for the confirmation screen.
+	 *
+	 * Restoring is the one thing this plugin does that cannot be taken back
+	 * by closing the tab, so the question asked before it should name what is
+	 * about to be replaced rather than say "are you sure".
+	 */
+	public function ajax_describe_restore() {
+		check_ajax_referer( 'tkvault_nonce', 'nonce' );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'takumi-vault' ) ) );
+		}
+
+		$backup_id = isset( $_POST['backup_id'] ) ? absint( $_POST['backup_id'] ) : 0;
+		$record    = $backup_id ? TKVault_DB::get_backup_by_id( $backup_id ) : null;
+
+		if ( ! $record ) {
+			wp_send_json_error( array( 'message' => __( 'That backup does not exist.', 'takumi-vault' ) ) );
+		}
+
+		$summary = ( 'files' === $record->type )
+			? TKVault_File_Restore::describe( $backup_id )
+			: TKVault_DB_Restore::describe( $backup_id );
+
+		if ( is_wp_error( $summary ) ) {
+			wp_send_json_error( array( 'message' => $summary->get_error_message() ) );
+		}
+
+		$summary['html'] = $this->render_restore_summary( $summary, $record );
+
+		wp_send_json_success( $summary );
+	}
+
+	/**
+	 * The body of the confirmation screen.
+	 *
+	 * Built server-side so the wording stays translatable and the numbers
+	 * come from the manifests rather than from anything the browser holds.
+	 *
+	 * @param array  $s      Summary from describe().
+	 * @param object $record Backup record.
+	 * @return string
+	 */
+	private function render_restore_summary( array $s, $record ) {
+		ob_start();
+
+		if ( ! empty( $s['problem'] ) ) {
+			printf( '<p class="tkvault-restore-problem">%s</p>', esc_html( $s['problem'] ) );
+		}
+
+		if ( ! empty( $s['missing'] ) ) {
+			printf(
+				'<p class="tkvault-restore-problem">%s<br><code>%s</code></p>',
+				esc_html__( 'These archive files are missing, so the restore cannot run:', 'takumi-vault' ),
+				esc_html( implode( ', ', $s['missing'] ) )
+			);
+		}
+
+		echo '<dl class="tkvault-summary">';
+
+		if ( 'db' === $s['kind'] ) {
+			printf(
+				'<dt>%s</dt><dd>%s</dd>',
+				esc_html__( 'Will be replaced', 'takumi-vault' ),
+				esc_html(
+					sprintf(
+						/* translators: 1: number of tables, 2: table prefix */
+						_n( '%1$d table beginning %2$s', '%1$d tables beginning %2$s', (int) $s['tables'], 'takumi-vault' ),
+						(int) $s['tables'],
+						$s['prefix']
+					)
+				)
+			);
+			printf(
+				'<dt>%s</dt><dd>%s</dd>',
+				esc_html__( 'Rows in the backup', 'takumi-vault' ),
+				esc_html( number_format_i18n( (int) $s['rows'] ) )
+			);
+
+			if ( ! empty( $s['foreign'] ) ) {
+				printf(
+					'<dt>%s</dt><dd class="tkvault-warn">%s</dd>',
+					esc_html__( 'Taken from', 'takumi-vault' ),
+					esc_html(
+						sprintf(
+							/* translators: %s: site address the backup came from */
+							__( '%s - a different address from this site. URLs inside the content are not rewritten.', 'takumi-vault' ),
+							$s['site_url']
+						)
+					)
+				);
+			}
+
+			if ( empty( $s['consistent'] ) ) {
+				printf(
+					'<dt>%s</dt><dd class="tkvault-warn">%s</dd>',
+					esc_html__( 'Consistency', 'takumi-vault' ),
+					esc_html__( 'Some tables changed while they were being copied. The backup is usable; those tables may be a few rows out.', 'takumi-vault' )
+				);
+			}
+
+			printf(
+				'<dt>%s</dt><dd>%s</dd>',
+				esc_html__( 'If it goes wrong', 'takumi-vault' ),
+				esc_html(
+					sprintf(
+						/* translators: %d: days the previous database is kept */
+						_n(
+							'A copy of the current database is taken first and kept for %d day, so this can be undone.',
+							'A copy of the current database is taken first and kept for %d days, so this can be undone.',
+							max( 1, (int) $s['retention'] ),
+							'takumi-vault'
+						),
+						(int) $s['retention']
+					)
+				)
+			);
+		} else {
+			printf(
+				'<dt>%s</dt><dd>%s</dd>',
+				esc_html__( 'Will be written', 'takumi-vault' ),
+				esc_html(
+					sprintf(
+						/* translators: 1: number of files, 2: destination folder */
+						_n( '%1$s file into %2$s', '%1$s files into %2$s', (int) $s['files'], 'takumi-vault' ),
+						number_format_i18n( (int) $s['files'] ),
+						$s['root']
+					)
+				)
+			);
+
+			if ( (int) $s['links'] > 1 ) {
+				printf(
+					'<dt>%s</dt><dd>%s</dd>',
+					esc_html__( 'Built from', 'takumi-vault' ),
+					esc_html(
+						sprintf(
+							/* translators: %d: number of backups in the chain */
+							__( '%d backups, applied oldest first back to the last full one.', 'takumi-vault' ),
+							(int) $s['links']
+						)
+					)
+				);
+			}
+
+			printf(
+				'<dt>%s</dt><dd>%s</dd>',
+				esc_html__( 'Nothing is deleted', 'takumi-vault' ),
+				esc_html__( 'Files that exist now but are not in the backup are left alone and listed afterwards.', 'takumi-vault' )
+			);
+			printf(
+				'<dt>%s</dt><dd>%s</dd>',
+				esc_html__( 'If it goes wrong', 'takumi-vault' ),
+				esc_html__( 'Every file this replaces is kept, so the replaced versions can be put back afterwards.', 'takumi-vault' )
+			);
+		}
+
+		printf(
+			'<dt>%s</dt><dd>%s</dd>',
+			esc_html__( 'Backup taken', 'takumi-vault' ),
+			esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), strtotime( $record->created_at ) ) )
+		);
+
+		echo '</dl>';
+
+		return ob_get_clean();
 	}
 
 	public function ajax_delete_backup() {

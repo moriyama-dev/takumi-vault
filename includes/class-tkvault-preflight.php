@@ -16,6 +16,13 @@ class TKVault_Preflight {
 
 	const OK   = 'ok';
 	const WARN = 'warn';
+
+	/**
+	 * A missing feature the plugin works around, as opposed to something the
+	 * site owner should look at. "Falls back" reads correctly for a host
+	 * without ZipArchive; it reads as nonsense against a permission problem.
+	 */
+	const FALLBACK = 'fallback';
 	const STOP = 'stop';
 
 	/**
@@ -59,7 +66,7 @@ class TKVault_Preflight {
 			return self::row( __( 'Archive format', 'takumi-vault' ), self::OK, __( 'ZipArchive is available; backups will be ZIP files.', 'takumi-vault' ) );
 		}
 		if ( class_exists( 'PharData' ) ) {
-			return self::row( __( 'Archive format', 'takumi-vault' ), self::WARN, __( 'ZipArchive is missing. Falling back to PharData, so backups will be tar.gz files.', 'takumi-vault' ) );
+			return self::row( __( 'Archive format', 'takumi-vault' ), self::FALLBACK, __( 'ZipArchive is missing. Falling back to PharData, so backups will be tar.gz files.', 'takumi-vault' ) );
 		}
 		return self::row( __( 'Archive format', 'takumi-vault' ), self::STOP, __( 'Neither ZipArchive nor PharData is available, so no archive can be created.', 'takumi-vault' ) );
 	}
@@ -67,13 +74,13 @@ class TKVault_Preflight {
 	private static function check_mbstring() {
 		return extension_loaded( 'mbstring' )
 			? self::row( __( 'mbstring', 'takumi-vault' ), self::OK, __( 'Available. Binary column values are detected by encoding check.', 'takumi-vault' ) )
-			: self::row( __( 'mbstring', 'takumi-vault' ), self::WARN, __( 'Missing. Binary values will be detected from the column type instead.', 'takumi-vault' ) );
+			: self::row( __( 'mbstring', 'takumi-vault' ), self::FALLBACK, __( 'Missing. Binary values will be detected from the column type instead.', 'takumi-vault' ) );
 	}
 
 	private static function check_hardlink() {
 		return function_exists( 'link' )
 			? self::row( __( 'Hard links', 'takumi-vault' ), self::OK, __( 'Available. File snapshots are near-instant and use no extra disk.', 'takumi-vault' ) )
-			: self::row( __( 'Hard links', 'takumi-vault' ), self::WARN, __( 'Unavailable. Files are copied instead, which lengthens the maintenance window.', 'takumi-vault' ) );
+			: self::row( __( 'Hard links', 'takumi-vault' ), self::FALLBACK, __( 'Unavailable. Files are copied instead, which lengthens the maintenance window.', 'takumi-vault' ) );
 	}
 
 	/**
@@ -93,7 +100,7 @@ class TKVault_Preflight {
 		if ( is_wp_error( $response ) ) {
 			return self::row(
 				__( 'Loopback requests', 'takumi-vault' ),
-				self::WARN,
+				self::FALLBACK,
 				sprintf(
 					/* translators: %s: error message from the HTTP request */
 					__( 'Blocked (%s). Long jobs will advance only while an admin screen is open.', 'takumi-vault' ),
@@ -113,7 +120,7 @@ class TKVault_Preflight {
 		if ( 200 !== $code || false === strpos( $body, '"success":true' ) ) {
 			return self::row(
 				__( 'Loopback requests', 'takumi-vault' ),
-				self::WARN,
+				self::FALLBACK,
 				sprintf(
 					/* translators: %d: HTTP status code returned by the loopback request */
 					__( 'The site answered its own request with HTTP %d instead of running the handler. Long jobs will advance only while an admin screen is open.', 'takumi-vault' ),
@@ -127,7 +134,7 @@ class TKVault_Preflight {
 
 	private static function check_cron() {
 		if ( defined( 'DISABLE_WP_CRON' ) && DISABLE_WP_CRON ) {
-			return self::row( __( 'WP-Cron', 'takumi-vault' ), self::WARN, __( 'Disabled by DISABLE_WP_CRON. Scheduled backups and the periodic exposure re-check will not run on their own.', 'takumi-vault' ) );
+			return self::row( __( 'WP-Cron', 'takumi-vault' ), self::FALLBACK, __( 'Disabled by DISABLE_WP_CRON. Scheduled backups and the periodic exposure re-check will not run on their own.', 'takumi-vault' ) );
 		}
 		return self::row( __( 'WP-Cron', 'takumi-vault' ), self::OK, __( 'Enabled.', 'takumi-vault' ) );
 	}

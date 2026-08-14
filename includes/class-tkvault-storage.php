@@ -693,11 +693,30 @@ class TKVault_Storage {
 		$preferred = self::preferred_mode( $dir );
 
 		foreach ( array_unique( array( $preferred, 0750, 0755 ) ) as $mode ) {
-			if ( self::chmod( $dir, $mode ) ) {
+			// Already there is success, whoever we are. chmod() fails for
+			// anyone who does not own the directory, and once the destination
+			// has been set up correctly every later request is made by
+			// somebody who does not own it - the web server, when it was the
+			// account user who created it. Reporting that as "the permissions
+			// could not be set" describes a directory that is in fact exactly
+			// as it should be.
+			if ( self::mode_of( $dir ) === $mode || self::chmod( $dir, $mode ) ) {
 				return $mode;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Permission bits of a path, setgid included, or null.
+	 *
+	 * @param string $path Path to inspect.
+	 * @return int|null
+	 */
+	private static function mode_of( $path ) {
+		clearstatcache( true, $path );
+		$perms = @fileperms( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return false === $perms ? null : ( $perms & 07777 );
 	}
 
 	/**

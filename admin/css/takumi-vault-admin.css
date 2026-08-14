@@ -75,6 +75,11 @@
 	color: #00652c;
 }
 
+.tkvault-status-fallback {
+	background: #f0f0f1;
+	color: #50575e;
+}
+
 .tkvault-status-warn {
 	background: #fcf5e6;
 	color: #8a5700;
@@ -103,4 +108,73 @@
 .tkvault-progress-text {
 	margin: 8px 0 0;
 	font-size: 13px;
+}
+
+/* ---------------------------------------------------------------
+ * Restore confirmation
+ *
+ * A panel rather than a browser confirm(): the question it asks is
+ * specific to the backup being restored, and it has to be able to say
+ * "this cannot run" without offering a button.
+ * --------------------------------------------------------------- */
+.tkvault-confirm {
+	position: fixed;
+	inset: 0;
+	z-index: 100000;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background: rgba( 0, 0, 0, 0.5 );
+	padding: 20px;
+}
+
+.tkvault-confirm-box {
+	background: #fff;
+	border-radius: 4px;
+	box-shadow: 0 4px 24px rgba( 0, 0, 0, 0.25 );
+	max-width: 560px;
+	width: 100%;
+	max-height: 90vh;
+	overflow-y: auto;
+	padding: 20px 24px 16px;
+}
+
+.tkvault-confirm-box h2 {
+	margin-top: 0;
+}
+
+.tkvault-summary {
+	margin: 0 0 4px;
+}
+
+.tkvault-summary dt {
+	font-weight: 600;
+	margin-top: 12px;
+}
+
+.tkvault-summary dd {
+	margin: 2px 0 0;
+	color: #50575e;
+}
+
+.tkvault-summary dd.tkvault-warn {
+	color: #8a5700;
+}
+
+.tkvault-restore-problem {
+	background: #fcefef;
+	border-left: 4px solid #8a1f11;
+	color: #8a1f11;
+	padding: 8px 12px;
+	margin: 0 0 12px;
+}
+
+.tkvault-confirm-agree {
+	border-top: 1px solid #dcdcde;
+	margin-top: 16px;
+	padding-top: 12px;
+}
+
+.tkvault-confirm-actions {
+	margin-bottom: 0;
 }

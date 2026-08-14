@@ -81,6 +81,58 @@ class TKVault_DB_Restore {
 
 	/* --------------------------------------------------------------- */
 
+	/**
+	 * A plain-language summary of what restoring this dump would do.
+	 *
+	 * See the note on TKVault_File_Restore::describe(). Same purpose: the
+	 * confirmation screen should be able to say which database is about to be
+	 * replaced, by what, and what will still be recoverable afterwards.
+	 *
+	 * @param int $backup_id Backup record id.
+	 * @return array|WP_Error
+	 */
+	public static function describe( $backup_id ) {
+		$record = TKVault_DB::get_backup_by_id( (int) $backup_id );
+		if ( ! $record ) {
+			return new WP_Error( 'tkvault_no_backup', __( 'That backup does not exist.', 'takumi-vault' ) );
+		}
+
+		$store = TKVault_Storage::get_store_dir();
+		$base  = preg_replace( '/\.sql\.gz$/', '', basename( $record->filename ) );
+		$path  = trailingslashit( $store ) . $base . '_manifest.json';
+
+		if ( ! file_exists( $path ) ) {
+			return new WP_Error( 'tkvault_no_manifest', __( 'This backup has no manifest, so it cannot be verified before restoring.', 'takumi-vault' ) );
+		}
+
+		$manifest = json_decode( (string) file_get_contents( $path ), true ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+		if ( ! is_array( $manifest ) ) {
+			return new WP_Error( 'tkvault_bad_manifest', __( 'The manifest for this backup could not be read.', 'takumi-vault' ) );
+		}
+
+		global $wpdb;
+		$foreign = isset( $manifest['site_url'] ) && untrailingslashit( $manifest['site_url'] ) !== untrailingslashit( site_url() );
+
+		return array(
+			'kind'       => 'db',
+			'ok'         => file_exists( trailingslashit( $store ) . $record->filename ),
+			'problem'    => file_exists( trailingslashit( $store ) . $record->filename )
+				? ''
+				: __( 'The archive for this backup is missing.', 'takumi-vault' ),
+			'created'    => isset( $manifest['created'] ) ? $manifest['created'] : '',
+			'tables'     => isset( $manifest['tables'] ) ? count( $manifest['tables'] ) : 0,
+			'rows'       => isset( $manifest['rows_total'] ) ? (int) $manifest['rows_total'] : 0,
+			'scope'      => isset( $manifest['scope'] ) ? $manifest['scope'] : 'site_prefix',
+			'prefix'     => isset( $manifest['prefix'] ) ? $manifest['prefix'] : $wpdb->prefix,
+			'consistent' => ! empty( $manifest['consistent'] ),
+			'warnings'   => isset( $manifest['warnings'] ) ? (array) $manifest['warnings'] : array(),
+			'site_url'   => isset( $manifest['site_url'] ) ? $manifest['site_url'] : '',
+			'foreign'    => $foreign,
+			'retention'  => (int) self::retention_days(),
+			'size'       => (int) $record->size,
+		);
+	}
+
 	public static function run_chunk( array $state, array $payload, $job_id = 0 ) {
 		$phase = empty( $state['phase'] ) ? 'verify' : $state['phase'];
 

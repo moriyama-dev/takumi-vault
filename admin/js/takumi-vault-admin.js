@@ -155,14 +155,91 @@
 
 	// Restore from the backup list. The row button only points the shared job
 	// panel at a backup; the panel does the work and shows progress.
+	// Restoring is the one action here that cannot be undone by closing the
+	// tab, so it gets a screen that says what will be replaced rather than a
+	// browser confirm() that says "are you sure". The numbers come from the
+	// server, off the manifests, not from anything this page is holding.
+	var pendingRestore = 0;
+
+	function closeRestoreConfirm() {
+		$( '#tkvault-restore-confirm' ).hide();
+		$( '#tkvault-confirm-understood' ).prop( 'checked', false );
+		$( '#tkvault-confirm-go' ).prop( 'disabled', true );
+		pendingRestore = 0;
+	}
+
 	$( document ).on( 'click', '.tkvault-restore-btn', function ( e ) {
 		e.preventDefault();
-		if ( ! window.confirm( tkvaultAdmin.i18n.confirmRestore ) ) {
+
+		var id      = $( this ).data( 'id' );
+		var $dialog = $( '#tkvault-restore-confirm' );
+		var $body   = $dialog.find( '.tkvault-confirm-body' );
+
+		$body.html( '<p>' + tkvaultAdmin.i18n.checking + '</p>' );
+		$( '#tkvault-confirm-go' ).prop( 'disabled', true ).show();
+		$dialog.show();
+
+		$.post( tkvaultAdmin.ajaxUrl, {
+			action    : 'tkvault_describe_restore',
+			nonce     : tkvaultAdmin.nonce,
+			backup_id : id
+		} ).done( function ( res ) {
+			if ( ! res.success ) {
+				$body.html( '<p class="tkvault-restore-problem">' + res.data.message + '</p>' );
+				$( '#tkvault-confirm-go' ).hide();
+				return;
+			}
+
+			pendingRestore = id;
+			$body.html( res.data.html );
+
+			// A backup that cannot be restored gets an explanation and no
+			// button, rather than a button that fails once it is pressed.
+			if ( res.data.ok ) {
+				$( '#tkvault-confirm-go' ).show();
+			} else {
+				$( '#tkvault-confirm-go' ).hide();
+			}
+		} ).fail( function () {
+			$body.html( '<p class="tkvault-restore-problem">' + tkvaultAdmin.i18n.error + '</p>' );
+			$( '#tkvault-confirm-go' ).hide();
+		} );
+	} );
+
+	$( document ).on( 'change', '#tkvault-confirm-understood', function () {
+		$( '#tkvault-confirm-go' ).prop( 'disabled', ! $( this ).is( ':checked' ) );
+	} );
+
+	$( document ).on( 'click', '#tkvault-confirm-cancel', function ( e ) {
+		e.preventDefault();
+		closeRestoreConfirm();
+	} );
+
+	// Escape closes it, and clicking the backdrop does too. Neither starts
+	// anything.
+	$( document ).on( 'keydown', function ( e ) {
+		if ( 27 === e.keyCode && $( '#tkvault-restore-confirm' ).is( ':visible' ) ) {
+			closeRestoreConfirm();
+		}
+	} );
+
+	$( document ).on( 'click', '#tkvault-restore-confirm', function ( e ) {
+		if ( e.target === this ) {
+			closeRestoreConfirm();
+		}
+	} );
+
+	$( document ).on( 'click', '#tkvault-confirm-go', function ( e ) {
+		e.preventDefault();
+		if ( ! pendingRestore || ! $( '#tkvault-confirm-understood' ).is( ':checked' ) ) {
 			return;
 		}
 
+		var id = pendingRestore;
+		closeRestoreConfirm();
+
 		var $panel = $( '.tkvault-job[data-start-action="tkvault_start_restore"]' );
-		$panel.attr( 'data-backup-id', $( this ).data( 'id' ) );
+		$panel.attr( 'data-backup-id', id );
 		$panel.attr( 'data-confirm-space', '1' );
 		$panel.find( '.tkvault-job-start' ).trigger( 'click' );
 	} );

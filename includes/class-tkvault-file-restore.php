@@ -87,6 +87,96 @@ class TKVault_File_Restore {
 		return $base;
 	}
 
+	/**
+	 * A plain-language summary of what restoring this backup would do.
+	 *
+	 * Read before the fact, so the confirmation screen can say what is about
+	 * to happen instead of asking the site owner to agree to something
+	 * unspecified. Deliberately cheap: manifests only, no hashing. The real
+	 * verification still happens inside the job, where a damaged archive
+	 * stops the restore; this is for the human, not the guard rail.
+	 *
+	 * @param int $backup_id Backup record id.
+	 * @return array|WP_Error
+	 */
+	public static function describe( $backup_id ) {
+		$record = TKVault_DB::get_backup_by_id( (int) $backup_id );
+		if ( ! $record ) {
+			return new WP_Error( 'tkvault_no_backup', __( 'That backup does not exist.', 'takumi-vault' ) );
+		}
+
+		$base = self::manifest_for_volume( $record->filename );
+		if ( is_wp_error( $base ) ) {
+			return $base;
+		}
+
+		$store    = TKVault_Storage::get_store_dir();
+		$chain    = array();
+		$seen     = array();
+		$missing  = array();
+		$problem  = '';
+
+		while ( $base ) {
+			if ( isset( $seen[ $base ] ) ) {
+				$problem = __( 'The backup chain refers back to itself.', 'takumi-vault' );
+				break;
+			}
+			$seen[ $base ] = true;
+
+			$manifest = self::read_manifest( $base );
+			if ( is_wp_error( $manifest ) ) {
+				$problem = $manifest->get_error_message();
+				break;
+			}
+
+			foreach ( $manifest['volumes'] as $volume ) {
+				if ( ! file_exists( trailingslashit( $store ) . $volume['name'] ) ) {
+					$missing[] = $volume['name'];
+				}
+			}
+
+			array_unshift(
+				$chain,
+				array(
+					'base'     => $base,
+					'mode'     => isset( $manifest['mode'] ) ? $manifest['mode'] : 'full',
+					'created'  => isset( $manifest['created'] ) ? $manifest['created'] : '',
+					'archived' => isset( $manifest['counts']['archived'] ) ? (int) $manifest['counts']['archived'] : 0,
+					'bytes'    => isset( $manifest['counts']['bytes'] ) ? (int) $manifest['counts']['bytes'] : 0,
+					'volumes'  => count( $manifest['volumes'] ),
+				)
+			);
+
+			$base = isset( $manifest['parent'] ) ? $manifest['parent'] : null;
+		}
+
+		if ( ! $problem && ( ! $chain || 'full' !== $chain[0]['mode'] ) ) {
+			$problem = __( 'The chain does not start with a full backup, so it cannot be restored.', 'takumi-vault' );
+		}
+
+		// Summed across the chain: an incremental only carries what changed,
+		// so the number that matters is what the whole chain writes.
+		$files = 0;
+		$bytes = 0;
+		foreach ( $chain as $link ) {
+			$files += $link['archived'];
+			$bytes += $link['bytes'];
+		}
+
+		return array(
+			'kind'     => 'files',
+			'ok'       => '' === $problem && ! $missing,
+			'problem'  => $problem,
+			'missing'  => $missing,
+			'chain'    => $chain,
+			'links'    => count( $chain ),
+			'files'    => $files,
+			'bytes'    => $bytes,
+			'root'     => str_replace( ABSPATH, '', WP_CONTENT_DIR ),
+			'replaced' => self::replaced_count(),
+		);
+	}
+
 	/* --------------------------------------------------------------- */
 
 	public static function run_chunk( array $state, array $payload, $job_id = 0 ) {
