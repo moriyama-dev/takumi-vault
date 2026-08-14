@@ -82,6 +82,36 @@ class TKVault_Storage {
 	}
 
 	/**
+	 * A base name nothing in the store is already using.
+	 *
+	 * Timestamps have one-second resolution, so two backups started in the
+	 * same second would otherwise share a name. That is not a cosmetic clash:
+	 * ZipArchive::CREATE appends to an existing archive rather than replacing
+	 * it, so the second backup would be mixed into the first, and both
+	 * manifests would describe only one of them.
+	 */
+	public static function unique_base( $base ) {
+		$store = self::get_store_dir();
+		if ( ! $store ) {
+			return $base;
+		}
+
+		$candidate = $base;
+		$suffix    = 2;
+
+		while ( glob( trailingslashit( $store ) . $candidate . '*' ) ) {
+			$candidate = $base . '-' . $suffix;
+			$suffix++;
+
+			if ( $suffix > 100 ) {
+				return $base . '-' . wp_generate_password( 6, false, false );
+			}
+		}
+
+		return $candidate;
+	}
+
+	/**
 	 * Bring an older destination up to the store/ layout.
 	 *
 	 * Installations configured before archives moved down a level have their

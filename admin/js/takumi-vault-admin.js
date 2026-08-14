@@ -118,6 +118,7 @@
 				nonce         : tkvaultAdmin.nonce,
 				chunks        : 20,
 				note          : $( $panel.data( 'note-field' ) ).val() || '',
+				type          : $( $panel.data( 'type-field' ) ).val() || 'db',
 				backup_id     : $panel.attr( 'data-backup-id' ) || 0,
 				confirm_space : $panel.attr( 'data-confirm-space' ) || '',
 			} )

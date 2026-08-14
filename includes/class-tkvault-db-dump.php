@@ -99,7 +99,7 @@ class TKVault_DB_Dump {
 
 		$store     = TKVault_Storage::get_store_dir();
 		$timestamp = isset( $payload['timestamp'] ) ? $payload['timestamp'] : gmdate( 'Y-m-d_His' );
-		$base      = $timestamp . '_db';
+		$base      = TKVault_Storage::unique_base( $timestamp . '_db' );
 		$file      = trailingslashit( $store ) . $base . '.sql.gz';
 
 		if ( ! $store || ! is_dir( $store ) ) {

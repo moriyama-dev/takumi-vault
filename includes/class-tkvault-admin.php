@@ -58,6 +58,7 @@ class TKVault_Admin {
 		}
 
 		$note = isset( $_POST['note'] ) ? sanitize_textarea_field( wp_unslash( $_POST['note'] ) ) : '';
+		$type = isset( $_POST['type'] ) ? sanitize_key( wp_unslash( $_POST['type'] ) ) : 'db';
 
 		$dir = tkvault_ensure_backup_dir();
 		if ( is_wp_error( $dir ) ) {
@@ -70,7 +71,10 @@ class TKVault_Admin {
 			);
 		}
 
-		$job = TKVault_DB_Dump::start( $note );
+		$job = 'files' === $type
+			? TKVault_File_Backup::start( $note )
+			: TKVault_DB_Dump::start( $note );
+
 		if ( is_wp_error( $job ) ) {
 			wp_send_json_error( array( 'message' => $job->get_error_message() ) );
 		}

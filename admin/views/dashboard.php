@@ -77,12 +77,15 @@
 	<div class="tkvault-card tkvault-backup-actions tkvault-job"
 		data-job="0"
 		data-start-action="tkvault_start_backup"
-		data-note-field="#tkvault-backup-note">
+		data-note-field="#tkvault-backup-note"
+		data-type-field="#tkvault-backup-type">
 		<h2><?php esc_html_e( 'Back up now', 'takumi-vault' ); ?></h2>
-		<p class="description">
-			<?php esc_html_e( 'Backs up the database. File backups arrive in a later version.', 'takumi-vault' ); ?>
-		</p>
 		<div class="tkvault-action-row">
+			<label for="tkvault-backup-type"><?php esc_html_e( 'What to back up', 'takumi-vault' ); ?></label>
+			<select id="tkvault-backup-type">
+				<option value="db"><?php esc_html_e( 'Database', 'takumi-vault' ); ?></option>
+				<option value="files"><?php esc_html_e( 'Files (wp-content)', 'takumi-vault' ); ?></option>
+			</select>
 			<label for="tkvault-backup-note"><?php esc_html_e( 'Note (optional)', 'takumi-vault' ); ?></label>
 			<input type="text" id="tkvault-backup-note" placeholder="<?php esc_attr_e( 'e.g. before the theme change', 'takumi-vault' ); ?>">
 			<button class="button button-primary tkvault-job-start">
