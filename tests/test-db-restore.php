@@ -4,41 +4,18 @@
  *   /home/yoshi/projects/takumi-vault/bin/deploy.sh && cd /var/www/html && wp eval-file <this file>
  */
 
-$GLOBALS['p'] = 0;
-$GLOBALS['f'] = 0;
+require_once __DIR__ . '/bootstrap.php';
 
+tkv_block_loopback();
+
+// Thin aliases so the assertions below read the same as the other suites
+// while the counting stays in one place.
 function c( $label, $got, $want ) {
-	$ok = ( $got === $want );
-	$ok ? $GLOBALS['p']++ : $GLOBALS['f']++;
-	printf(
-		"  [%s] %-52s got=%s want=%s\n",
-		$ok ? 'PASS' : 'FAIL',
-		$label,
-		is_string( $got ) && strlen( $got ) > 34 ? "'" . substr( $got, 0, 31 ) . "...'" : var_export( $got, true ),
-		is_string( $want ) && strlen( $want ) > 34 ? "'" . substr( $want, 0, 31 ) . "...'" : var_export( $want, true )
-	);
+	return tkv_check( $label, $got, $want );
 }
 
-// Everything is driven from this process; see the step 3 tests for why.
-add_filter(
-	'pre_http_request',
-	function ( $pre, $args, $url ) {
-		return false !== strpos( $url, 'admin-ajax.php' )
-			? new WP_Error( 'http_request_failed', 'loopback blocked by test' )
-			: $pre;
-	},
-	10,
-	3
-);
-
 function drive( $job_id, $limit = 4000 ) {
-	$n = 0;
-	do {
-		$snap = TKVault_Runner::run( $job_id );
-		$n++;
-	} while ( in_array( $snap['status'], array( 'pending', 'running' ), true ) && $n < $limit );
-	$snap['requests'] = $n;
-	return $snap;
+	return tkv_drive( $job_id, $limit );
 }
 
 function make_dump( $note = 'test' ) {
@@ -330,4 +307,4 @@ delete_option( 'tkv_marker' );
 TKVault_SQL_Reader::close_cached();
 echo "  done\n";
 
-printf( "\n==== %d passed, %d failed ====\n", $GLOBALS['p'], $GLOBALS['f'] );
+tkv_report();
