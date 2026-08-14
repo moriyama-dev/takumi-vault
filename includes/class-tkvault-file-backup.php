@@ -196,6 +196,7 @@ class TKVault_File_Backup {
 	 */
 	private static function scan( array $state ) {
 		$handle = fopen( $state['list_file'], 'a' ); // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_fopen
+		TKVault_Storage::secure_file( $state['list_file'] );
 		if ( ! $handle ) {
 			throw new TKVault_Job_Fatal( esc_html__( 'Could not write the file list.', 'takumi-vault' ) );
 		}
@@ -401,6 +402,10 @@ class TKVault_File_Backup {
 				throw new TKVault_Job_Fatal( esc_html__( 'The archive could not be written.', 'takumi-vault' ) );
 			}
 
+			// close() creates the file on the first batch, at whatever the
+			// umask allows. Close it down before the next batch reopens it.
+			TKVault_Storage::secure_file( $archive );
+
 			return;
 		}
 
@@ -465,6 +470,7 @@ class TKVault_File_Backup {
 		if ( false === file_put_contents( $manifest_file, wp_json_encode( $manifest, JSON_UNESCAPED_SLASHES ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			throw new TKVault_Job_Fatal( esc_html__( 'Could not write the backup manifest.', 'takumi-vault' ) );
 		}
+		TKVault_Storage::secure_file( $manifest_file );
 
 		// The list file was scratch space for this run only.
 		if ( file_exists( $state['list_file'] ) ) {
@@ -507,6 +513,7 @@ class TKVault_File_Backup {
 				$phar->compress( Phar::GZ );
 				unset( $phar );
 				wp_delete_file( $tar );
+				TKVault_Storage::secure_file( $volume );
 				$out[] = $volume;
 			} catch ( Exception $e ) {
 				throw new TKVault_Job_Fatal( esc_html( $e->getMessage() ) );

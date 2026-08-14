@@ -33,6 +33,7 @@ class TKVault_Preflight {
 			self::check_loopback(),
 			self::check_cron(),
 			self::check_destination(),
+			self::check_permissions(),
 			self::check_exposure( $probe ),
 			self::check_free_space(),
 		);
@@ -145,6 +146,63 @@ class TKVault_Preflight {
 		}
 
 		return self::row( __( 'Backup destination', 'takumi-vault' ), self::OK, $dir );
+	}
+
+	/**
+	 * Whether the destination came out as private as it should be.
+	 *
+	 * 0700 is what the plugin aims for. Anything looser is a compromise it
+	 * made deliberately - a site whose web server and account user share a
+	 * group has to be joined rather than fought - but the owner should be
+	 * able to see that it happened, and which group can read the archives.
+	 */
+	private static function check_permissions() {
+		$label = __( 'Destination permissions', 'takumi-vault' );
+		$modes = TKVault_Storage::modes();
+
+		if ( ! $modes ) {
+			return self::row( $label, self::WARN, __( 'Not recorded yet. Re-check the destination under Settings.', 'takumi-vault' ) );
+		}
+
+		$mode  = isset( $modes['store'] ) ? $modes['store'] : null;
+		$outer = isset( $modes['mode'] ) ? $modes['mode'] : null;
+
+		if ( null === $mode || null === $outer ) {
+			return self::row(
+				$label,
+				self::WARN,
+				__( 'The permissions could not be set. Check that the destination is owned by the user PHP runs as.', 'takumi-vault' )
+			);
+		}
+
+		if ( 0700 === $mode && 0700 === $outer ) {
+			return self::row( $label, self::OK, __( 'Private to the user PHP runs as (0700).', 'takumi-vault' ) );
+		}
+
+		if ( ( $mode & 0007 ) || ( $outer & 0007 ) ) {
+			return self::row(
+				$label,
+				self::STOP,
+				sprintf(
+					/* translators: %s: octal permission mode, e.g. 0755 */
+					__( 'Readable by every user on this server (%s). The archives contain your database. Move the destination somewhere the plugin can close down.', 'takumi-vault' ),
+					'0' . decoct( $mode )
+				)
+			);
+		}
+
+		$group = TKVault_Storage::group_name( isset( $modes['gid'] ) ? $modes['gid'] : null );
+
+		return self::row(
+			$label,
+			self::WARN,
+			sprintf(
+				/* translators: 1: octal permission mode, e.g. 0770, 2: group name */
+				__( 'Shared with the "%2$s" group (%1$s) rather than kept at 0700. This site already shares that group between its web server and its account user, and the destination has to match or one of them cannot write backups. No other user on the server has access.', 'takumi-vault' ),
+				'0' . decoct( $mode ),
+				$group ? $group : __( 'unknown', 'takumi-vault' )
+			)
+		);
 	}
 
 	/**

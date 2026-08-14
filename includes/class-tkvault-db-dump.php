@@ -131,6 +131,7 @@ class TKVault_DB_Dump {
 		}
 
 		$handle = gzopen( $file, 'wb9' );
+		TKVault_Storage::secure_file( $file );
 		if ( ! $handle ) {
 			throw new TKVault_Job_Fatal( esc_html__( 'Could not open the dump file for writing.', 'takumi-vault' ) );
 		}
@@ -419,6 +420,7 @@ class TKVault_DB_Dump {
 		if ( false === file_put_contents( $manifest_file, wp_json_encode( $manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES ) ) ) { // phpcs:ignore WordPress.WP.AlternativeFunctions.file_system_operations_file_put_contents
 			throw new TKVault_Job_Fatal( esc_html__( 'Could not write the backup manifest.', 'takumi-vault' ) );
 		}
+		TKVault_Storage::secure_file( $manifest_file );
 
 		TKVault_DB::insert_backup(
 			array(

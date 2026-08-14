@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-14T17:00:08+00:00\n"
+"POT-Creation-Date: 2026-08-14T19:06:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: takumi-vault\n"
@@ -139,10 +139,10 @@ msgstr ""
 
 #: admin/views/dashboard.php:38
 #: admin/views/settings.php:26
-#: includes/class-tkvault-preflight.php:138
-#: includes/class-tkvault-preflight.php:141
-#: includes/class-tkvault-preflight.php:144
-#: includes/class-tkvault-preflight.php:147
+#: includes/class-tkvault-preflight.php:139
+#: includes/class-tkvault-preflight.php:142
+#: includes/class-tkvault-preflight.php:145
+#: includes/class-tkvault-preflight.php:148
 msgid "Backup destination"
 msgstr ""
 
@@ -509,8 +509,8 @@ msgstr ""
 
 #: includes/class-tkvault-db-dump.php:58
 #: includes/class-tkvault-file-backup.php:64
-#: includes/class-tkvault-storage.php:128
-#: includes/class-tkvault-storage.php:729
+#: includes/class-tkvault-storage.php:129
+#: includes/class-tkvault-storage.php:920
 msgid "No backup destination is configured."
 msgstr ""
 
@@ -523,34 +523,34 @@ msgstr ""
 msgid "No tables matched the backup scope."
 msgstr ""
 
-#: includes/class-tkvault-db-dump.php:135
+#: includes/class-tkvault-db-dump.php:136
 msgid "Could not open the dump file for writing."
 msgstr ""
 
 #. translators: 1: table name, 2: rows written, 3: row count before, 4: row count after
-#: includes/class-tkvault-db-dump.php:384
+#: includes/class-tkvault-db-dump.php:385
 #, php-format
 msgid "Rows were lost dumping %1$s: wrote %2$s, but the table held %3$s before and %4$s after. The backup was stopped rather than saved incomplete."
 msgstr ""
 
-#: includes/class-tkvault-db-dump.php:420
-#: includes/class-tkvault-file-backup.php:466
+#: includes/class-tkvault-db-dump.php:421
+#: includes/class-tkvault-file-backup.php:471
 msgid "Could not write the backup manifest."
 msgstr ""
 
 #. translators: %s: table name
-#: includes/class-tkvault-db-dump.php:531
+#: includes/class-tkvault-db-dump.php:533
 #, php-format
 msgid "Could not read the schema for %s."
 msgstr ""
 
 #. translators: %s: rejected identifier
-#: includes/class-tkvault-db-dump.php:675
+#: includes/class-tkvault-db-dump.php:677
 #, php-format
 msgid "Refusing to use %s as a table or column name."
 msgstr ""
 
-#: includes/class-tkvault-db-dump.php:707
+#: includes/class-tkvault-db-dump.php:709
 msgid "Could not append to the dump file."
 msgstr ""
 
@@ -667,23 +667,23 @@ msgstr ""
 msgid "The wp-content directory could not be found."
 msgstr ""
 
-#: includes/class-tkvault-file-backup.php:200
+#: includes/class-tkvault-file-backup.php:201
 msgid "Could not write the file list."
 msgstr ""
 
-#: includes/class-tkvault-file-backup.php:314
+#: includes/class-tkvault-file-backup.php:315
 msgid "Could not read the file list."
 msgstr ""
 
-#: includes/class-tkvault-file-backup.php:388
+#: includes/class-tkvault-file-backup.php:389
 msgid "Could not open the archive for writing."
 msgstr ""
 
-#: includes/class-tkvault-file-backup.php:401
+#: includes/class-tkvault-file-backup.php:402
 msgid "The archive could not be written."
 msgstr ""
 
-#: includes/class-tkvault-file-backup.php:459
+#: includes/class-tkvault-file-backup.php:464
 msgid "No archive was produced even though there were files to back up."
 msgstr ""
 
@@ -748,147 +748,179 @@ msgstr ""
 msgid "The record of replaced files does not point at this site's backup folder, so it was discarded rather than acted on."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:58
-#: includes/class-tkvault-preflight.php:61
-#: includes/class-tkvault-preflight.php:63
+#: includes/class-tkvault-preflight.php:59
+#: includes/class-tkvault-preflight.php:62
+#: includes/class-tkvault-preflight.php:64
 msgid "Archive format"
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:58
+#: includes/class-tkvault-preflight.php:59
 msgid "ZipArchive is available; backups will be ZIP files."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:61
+#: includes/class-tkvault-preflight.php:62
 msgid "ZipArchive is missing. Falling back to PharData, so backups will be tar.gz files."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:63
+#: includes/class-tkvault-preflight.php:64
 msgid "Neither ZipArchive nor PharData is available, so no archive can be created."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:68
 #: includes/class-tkvault-preflight.php:69
+#: includes/class-tkvault-preflight.php:70
 msgid "mbstring"
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:68
+#: includes/class-tkvault-preflight.php:69
 msgid "Available. Binary column values are detected by encoding check."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:69
+#: includes/class-tkvault-preflight.php:70
 msgid "Missing. Binary values will be detected from the column type instead."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:74
 #: includes/class-tkvault-preflight.php:75
+#: includes/class-tkvault-preflight.php:76
 msgid "Hard links"
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:74
+#: includes/class-tkvault-preflight.php:75
 msgid "Available. File snapshots are near-instant and use no extra disk."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:75
+#: includes/class-tkvault-preflight.php:76
 msgid "Unavailable. Files are copied instead, which lengthens the maintenance window."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:94
-#: includes/class-tkvault-preflight.php:114
-#: includes/class-tkvault-preflight.php:124
+#: includes/class-tkvault-preflight.php:95
+#: includes/class-tkvault-preflight.php:115
+#: includes/class-tkvault-preflight.php:125
 msgid "Loopback requests"
 msgstr ""
 
 #. translators: %s: error message from the HTTP request
-#: includes/class-tkvault-preflight.php:98
+#: includes/class-tkvault-preflight.php:99
 #, php-format
 msgid "Blocked (%s). Long jobs will advance only while an admin screen is open."
 msgstr ""
 
 #. translators: %d: HTTP status code returned by the loopback request
-#: includes/class-tkvault-preflight.php:118
+#: includes/class-tkvault-preflight.php:119
 #, php-format
 msgid "The site answered its own request with HTTP %d instead of running the handler. Long jobs will advance only while an admin screen is open."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:124
+#: includes/class-tkvault-preflight.php:125
 msgid "Working. Long jobs continue in the background."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:129
-#: includes/class-tkvault-preflight.php:131
+#: includes/class-tkvault-preflight.php:130
+#: includes/class-tkvault-preflight.php:132
 msgid "WP-Cron"
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:129
+#: includes/class-tkvault-preflight.php:130
 msgid "Disabled by DISABLE_WP_CRON. Scheduled backups and the periodic exposure re-check will not run on their own."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:131
+#: includes/class-tkvault-preflight.php:132
 msgid "Enabled."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:138
+#: includes/class-tkvault-preflight.php:139
 msgid "Not configured. Set a path under Settings."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:141
+#: includes/class-tkvault-preflight.php:142
 msgid "The configured directory no longer exists."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:144
+#: includes/class-tkvault-preflight.php:145
 msgid "The archive sub-directory is not writable."
 msgstr ""
 
 #: includes/class-tkvault-preflight.php:160
-#: includes/class-tkvault-preflight.php:165
-#: includes/class-tkvault-preflight.php:180
-#: includes/class-tkvault-preflight.php:187
-#: includes/class-tkvault-preflight.php:194
+msgid "Destination permissions"
+msgstr ""
+
+#: includes/class-tkvault-preflight.php:164
+msgid "Not recorded yet. Re-check the destination under Settings."
+msgstr ""
+
+#: includes/class-tkvault-preflight.php:174
+msgid "The permissions could not be set. Check that the destination is owned by the user PHP runs as."
+msgstr ""
+
+#: includes/class-tkvault-preflight.php:179
+msgid "Private to the user PHP runs as (0700)."
+msgstr ""
+
+#. translators: %s: octal permission mode, e.g. 0755
+#: includes/class-tkvault-preflight.php:188
+#, php-format
+msgid "Readable by every user on this server (%s). The archives contain your database. Move the destination somewhere the plugin can close down."
+msgstr ""
+
+#. translators: 1: octal permission mode, e.g. 0770, 2: group name
+#: includes/class-tkvault-preflight.php:201
+#, php-format
+msgid "Shared with the \"%2$s\" group (%1$s) rather than kept at 0700. This site already shares that group between its web server and its account user, and the destination has to match or one of them cannot write backups. No other user on the server has access."
+msgstr ""
+
+#: includes/class-tkvault-preflight.php:203
+msgid "unknown"
+msgstr ""
+
+#: includes/class-tkvault-preflight.php:218
+#: includes/class-tkvault-preflight.php:223
+#: includes/class-tkvault-preflight.php:238
+#: includes/class-tkvault-preflight.php:245
+#: includes/class-tkvault-preflight.php:252
 msgid "Public exposure"
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:160
+#: includes/class-tkvault-preflight.php:218
 msgid "Not checked: no destination is configured."
 msgstr ""
 
 #. translators: %s: human-readable time difference, e.g. "2 hours"
-#: includes/class-tkvault-preflight.php:172
+#: includes/class-tkvault-preflight.php:230
 #, php-format
 msgid "Last checked %s ago."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:175
+#: includes/class-tkvault-preflight.php:233
 msgid "Never checked."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:182
+#: includes/class-tkvault-preflight.php:240
 msgid "The backup directory is downloadable over HTTP. Move it before backing up again."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:189
+#: includes/class-tkvault-preflight.php:247
 msgid "A test file placed in the directory could not be fetched over HTTP."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:196
+#: includes/class-tkvault-preflight.php:254
 msgid "Inconclusive: no URL could be derived for this path, so the check could not be carried out. This is not the same as being confirmed safe."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:204
-#: includes/class-tkvault-preflight.php:207
-#: includes/class-tkvault-preflight.php:212
-#: includes/class-tkvault-preflight.php:215
+#: includes/class-tkvault-preflight.php:262
+#: includes/class-tkvault-preflight.php:265
+#: includes/class-tkvault-preflight.php:270
+#: includes/class-tkvault-preflight.php:273
 msgid "Free space"
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:204
+#: includes/class-tkvault-preflight.php:262
 msgid "Not checked: no usable destination."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:207
+#: includes/class-tkvault-preflight.php:265
 msgid "disk_free_space() is disabled on this host, so free space cannot be verified before a backup starts."
 msgstr ""
 
-#: includes/class-tkvault-preflight.php:212
+#: includes/class-tkvault-preflight.php:270
 msgid "Free space could not be read for this path."
 msgstr ""
 
@@ -943,49 +975,49 @@ msgstr ""
 msgid "Could not open the backup archive."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:135
-#: includes/class-tkvault-storage.php:612
+#: includes/class-tkvault-storage.php:136
+#: includes/class-tkvault-storage.php:619
 msgid "Could not create the archive sub-directory."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:170
+#: includes/class-tkvault-storage.php:177
 msgid "Beside the WordPress installation"
 msgstr ""
 
-#: includes/class-tkvault-storage.php:178
+#: includes/class-tkvault-storage.php:185
 msgid "Account home directory"
 msgstr ""
 
-#: includes/class-tkvault-storage.php:189
+#: includes/class-tkvault-storage.php:196
 msgid "Inside the uploads directory (hardened)"
 msgstr ""
 
-#: includes/class-tkvault-storage.php:251
+#: includes/class-tkvault-storage.php:258
 msgid "The directory exists but cannot be read."
 msgstr ""
 
 #. translators: %d: number of items already in the directory
-#: includes/class-tkvault-storage.php:261
+#: includes/class-tkvault-storage.php:268
 #, php-format
 msgid "This directory already contains %d item(s) that Takumi Vault did not create. Choose an empty directory instead."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:595
+#: includes/class-tkvault-storage.php:602
 msgid "This directory is served by the web server: a test file placed there was downloadable over HTTP. Backups will not be written here."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:640
+#: includes/class-tkvault-storage.php:648
 msgid "Could not create the backup directory."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:649
+#: includes/class-tkvault-storage.php:657
 msgid "The backup directory is not writable."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:711
+#: includes/class-tkvault-storage.php:902
 msgid "No usable backup destination was found. Set one manually under Takumi Vault > Settings."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:732
+#: includes/class-tkvault-storage.php:923
 msgid "The configured backup directory no longer exists."
 msgstr ""

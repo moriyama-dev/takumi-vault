@@ -27,6 +27,7 @@ $tkvault_options = array(
 	'tkvault_last_file_manifest',
 	'tkvault_replaced_files',
 	'tkvault_scheduled_run',
+	'tkvault_dir_modes',
 );
 
 foreach ( $tkvault_options as $tkvault_option ) {

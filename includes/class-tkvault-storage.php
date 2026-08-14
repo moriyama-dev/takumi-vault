@@ -55,6 +55,7 @@ class TKVault_Storage {
 	const OPTION_ALERT    = 'tkvault_exposure_alert';
 	const OPTION_ACK      = 'tkvault_public_dir_acknowledged';
 	const OPTION_GUARD    = 'tkvault_relax_guard';
+	const OPTION_MODES    = 'tkvault_dir_modes';
 
 	/** Entries allowed to pre-exist in a directory we are about to adopt. */
 	const IGNORABLE = array( '.', '..', '.htaccess', 'index.php', 'index.html', self::MARKER, self::STORE );
@@ -147,7 +148,13 @@ class TKVault_Storage {
 			}
 		}
 
-		self::tighten( $store );
+		// Both levels, not just the archive sub-directory. An install that was
+		// activated before this ran has an outer directory at 0700 owned by
+		// whoever activated it, and the web server cannot even traverse into
+		// store/ to reach an archive. Re-tightening here is what repairs it.
+		$store_mode = self::tighten( $store );
+		$dir_mode   = self::tighten( $dir );
+		self::record_modes( $dir, $dir_mode, $store_mode );
 
 		return true;
 	}
@@ -613,8 +620,9 @@ class TKVault_Storage {
 				)
 			);
 		}
-		self::tighten( $store );
-		self::tighten( $dir );
+		$store_mode = self::tighten( $store );
+		$dir_mode   = self::tighten( $dir );
+		self::record_modes( $dir, $dir_mode, $store_mode );
 
 		return self::result( true, $verdict, null );
 	}
@@ -654,15 +662,198 @@ class TKVault_Storage {
 	}
 
 	/**
-	 * Close a directory down to the tightest mode the host will accept.
+	 * Close a directory down to the tightest mode this site can actually use.
+	 *
+	 * 0700 is the goal, and it is the right answer whenever the directory was
+	 * created by the same user PHP runs as - the normal case, because
+	 * activation happens through the admin screen.
+	 *
+	 * It is the wrong answer when those two differ. A site activated with
+	 * WP-CLI over SSH under an account user, but served by mod_php or FPM as
+	 * www-data, ends up with a destination the web server cannot enter at all.
+	 * Worse, the plugin cannot chmod its way out afterwards, because by then
+	 * it is not the owner. Backups from the admin screen and from WP-Cron
+	 * simply stop working.
+	 *
+	 * A writability test would not catch it: the process doing the tightening
+	 * is the one that keeps access. So the site's own arrangement is mirrored
+	 * instead of guessed at. If the uploads directory is group-writable, this
+	 * site already depends on a shared group to let the web server and the
+	 * account user both write, and the destination has to join that
+	 * arrangement or it is useless to one of them.
+	 *
+	 * Nothing is opened up beyond what the site already does. There is no
+	 * world access in either branch, which is the property that matters on
+	 * shared hosting: the archives hold the database.
+	 *
+	 * @param string $dir Directory to close down.
+	 * @return int|null The mode that stuck, or null if none did.
 	 */
 	private static function tighten( $dir ) {
-		foreach ( array( 0700, 0750, 0755 ) as $mode ) {
+		$preferred = self::preferred_mode( $dir );
+
+		foreach ( array_unique( array( $preferred, 0750, 0755 ) ) as $mode ) {
 			if ( self::chmod( $dir, $mode ) ) {
 				return $mode;
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * 0700, unless this site shares a group between its web server and its
+	 * account user - in which case the destination has to share it too.
+	 *
+	 * @param string $dir Directory being closed down.
+	 * @return int
+	 */
+	private static function preferred_mode( $dir ) {
+		$shared = self::shared_gid();
+
+		if ( null !== $shared && self::gid_of( $dir ) === $shared ) {
+			// 02770, not 0770: the setgid bit is the half that makes this
+			// work. Without it a file created here takes the group of
+			// whoever wrote it, so an archive written from WP-CLI under the
+			// account user comes out in that user's group and the web server
+			// cannot read it back to restore or download. With it, everything
+			// written here belongs to the shared group no matter who wrote
+			// it. A plain chmod to 0770 would also strip a setgid bit the
+			// parent directory had already established.
+			return 02770;
+		}
+
+		return 0700;
+	}
+
+	/**
+	 * The group this site uses to share write access, if it uses one.
+	 *
+	 * The uploads directory is the reference because every working WordPress
+	 * install has one the web server can write to. Group-writable there means
+	 * the sharing is deliberate, and tells us which group carries it.
+	 *
+	 * @return int|null
+	 */
+	private static function shared_gid() {
+		$uploads = wp_upload_dir();
+		if ( ! empty( $uploads['error'] ) || empty( $uploads['basedir'] ) || ! is_dir( $uploads['basedir'] ) ) {
+			return null;
+		}
+
+		$perms = @fileperms( $uploads['basedir'] ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		if ( false === $perms || ! ( $perms & 0020 ) ) {
+			return null;
+		}
+
+		return self::gid_of( $uploads['basedir'] );
+	}
+
+	/**
+	 * @param string $path Path to inspect.
+	 * @return int|null
+	 */
+	private static function gid_of( $path ) {
+		$gid = @filegroup( $path ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		return false === $gid ? null : (int) $gid;
+	}
+
+	/**
+	 * Close a file we just wrote down to match the directory policy.
+	 *
+	 * The archives are the database and every file on the site. Leaving them
+	 * at whatever the umask happened to be - 0644 on most hosts - means the
+	 * only thing standing between them and every other account on the server
+	 * is the mode on the directory above. That is enough today, because the
+	 * destination is closed down too, but it stops being enough the moment
+	 * the uploads fallback is in use: that directory has to stay traversable
+	 * for the site to work at all.
+	 *
+	 * Same rule as the directory: 0600, or 0640 where the site shares a group
+	 * so the account user can still read what the web server wrote.
+	 *
+	 * @param string $path File to close down.
+	 * @return bool
+	 */
+	public static function secure_file( $path ) {
+		if ( ! is_file( $path ) ) {
+			return false;
+		}
+
+		// Decided by the directory the file sits in, not by the file's own
+		// group. The directory is where the policy was settled, and reading
+		// the file's group instead would give a different answer depending on
+		// which user happened to write it.
+		$store = self::get_store_dir();
+		$perms = $store ? @fileperms( $store ) : false; // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+		$mode  = ( false !== $perms && ( $perms & 0040 ) ) ? 0640 : 0600;
+
+		return (bool) self::chmod( $path, $mode );
+	}
+
+	/**
+	 * Record what tighten() actually achieved, so Diagnostics can say so.
+	 *
+	 * 0700 remains the ideal. Settling for less is a defensible compromise but
+	 * not an invisible one: the site owner should be able to see that the
+	 * backup directory is readable by a group, and by which.
+	 *
+	 * @param string   $dir   Destination directory.
+	 * @param int|null $mode  Mode on the destination.
+	 * @param int|null $store Mode on the archive sub-directory.
+	 */
+	private static function record_modes( $dir, $mode, $store ) {
+		update_option(
+			self::OPTION_MODES,
+			array(
+				'dir'     => $dir,
+				'mode'    => $mode,
+				'store'   => $store,
+				'gid'     => self::gid_of( $dir ),
+				'shared'  => self::shared_gid(),
+				'checked' => time(),
+			),
+			false
+		);
+	}
+
+	/**
+	 * What the last tightening settled on, for Diagnostics.
+	 *
+	 * @return array|false
+	 */
+	public static function modes() {
+		$modes = get_option( self::OPTION_MODES );
+		if ( ! is_array( $modes ) || empty( $modes['dir'] ) ) {
+			return false;
+		}
+
+		// A verdict about a directory we are no longer using says nothing
+		// about the one we are.
+		$dir = self::get_dir();
+		if ( ! $dir || wp_normalize_path( untrailingslashit( $modes['dir'] ) ) !== wp_normalize_path( untrailingslashit( $dir ) ) ) {
+			return false;
+		}
+
+		return $modes;
+	}
+
+	/**
+	 * The group name behind a gid, for display. Falls back to the number.
+	 *
+	 * @param int|null $gid Group id.
+	 * @return string
+	 */
+	public static function group_name( $gid ) {
+		if ( null === $gid ) {
+			return '';
+		}
+		if ( function_exists( 'posix_getgrgid' ) ) {
+			$info = @posix_getgrgid( (int) $gid ); // phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged
+			if ( ! empty( $info['name'] ) ) {
+				return $info['name'];
+			}
+		}
+		return (string) (int) $gid;
 	}
 
 	/**
