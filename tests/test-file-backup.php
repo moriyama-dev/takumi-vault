@@ -48,12 +48,22 @@ function tkv_rmtree( $dir ) {
 	if ( ! is_dir( $dir ) ) {
 		return;
 	}
+
+	// getPathname(), never getRealPath(). For a symlink the latter returns
+	// the target, so deleting by it would try to unlink whatever the link
+	// points at - the sandbox contains one aimed at /etc/passwd precisely so
+	// the plugin can be tested against it.
 	$items = new RecursiveIteratorIterator(
 		new RecursiveDirectoryIterator( $dir, RecursiveDirectoryIterator::SKIP_DOTS ),
 		RecursiveIteratorIterator::CHILD_FIRST
 	);
 	foreach ( $items as $item ) {
-		$item->isDir() ? @rmdir( $item->getRealPath() ) : @unlink( $item->getRealPath() );
+		$path = $item->getPathname();
+		if ( is_link( $path ) || ! $item->isDir() ) {
+			@unlink( $path );
+		} else {
+			@rmdir( $path );
+		}
 	}
 	@rmdir( $dir );
 }

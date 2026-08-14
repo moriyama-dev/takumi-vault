@@ -95,7 +95,23 @@
 				);
 				?>
 			</p>
-			<p><button class="button" id="tkvault-undo-restore"><?php esc_html_e( 'Put the previous database back', 'takumi-vault' ); ?></button></p>
+			<p><button class="button tkvault-undo-restore" data-kind="db"><?php esc_html_e( 'Put the previous database back', 'takumi-vault' ); ?></button></p>
+		</div>
+	<?php endif; ?>
+
+	<?php if ( TKVault_File_Restore::replaced_count() ) : ?>
+		<div class="tkvault-card" style="margin-top:24px;">
+			<h2><?php esc_html_e( 'Undo the last file restore', 'takumi-vault' ); ?></h2>
+			<p class="description">
+				<?php
+				printf(
+					/* translators: %d: number of files kept */
+					esc_html__( 'The last file restore replaced %d file(s). The versions it replaced were kept and can be put back.', 'takumi-vault' ),
+					(int) TKVault_File_Restore::replaced_count()
+				);
+				?>
+			</p>
+			<p><button class="button tkvault-undo-restore" data-kind="files"><?php esc_html_e( 'Put the replaced files back', 'takumi-vault' ); ?></button></p>
 		</div>
 	<?php endif; ?>
 </div>

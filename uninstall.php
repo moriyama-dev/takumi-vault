@@ -25,6 +25,7 @@ $tkvault_options = array(
 	'tkvault_old_tables',
 	'tkvault_old_table_retention_days',
 	'tkvault_last_file_manifest',
+	'tkvault_replaced_files',
 );
 
 foreach ( $tkvault_options as $tkvault_option ) {

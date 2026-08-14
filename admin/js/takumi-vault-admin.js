@@ -175,7 +175,7 @@
 		}
 	} );
 
-	$( '#tkvault-undo-restore' ).on( 'click', function ( e ) {
+	$( document ).on( 'click', '.tkvault-undo-restore', function ( e ) {
 		e.preventDefault();
 		var $btn    = $( this );
 		var $result = $( '#tkvault-list-result' );
@@ -185,6 +185,7 @@
 		$.post( tkvaultAdmin.ajaxUrl, {
 			action : 'tkvault_undo_restore',
 			nonce  : tkvaultAdmin.nonce,
+			kind   : $btn.data( 'kind' ) || 'db',
 		} )
 		.done( function ( res ) {
 			showResult( $result, res.data.message, ! res.success );

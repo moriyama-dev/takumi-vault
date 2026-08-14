@@ -20,7 +20,7 @@ echo
 
 failed=0
 
-for suite in test-job-runner test-db-dump test-file-backup test-db-restore; do
+for suite in test-job-runner test-db-dump test-file-backup test-db-restore test-file-restore; do
 	echo "──────────────────────────────────────────────────────────"
 	echo "  ${suite}"
 	echo "──────────────────────────────────────────────────────────"

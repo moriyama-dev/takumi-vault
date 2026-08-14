@@ -308,7 +308,14 @@ class TKVault_Storage {
 		}
 	}
 
-	private static function filesystem() {
+	/**
+	 * The WP_Filesystem instance, built on first use.
+	 *
+	 * Public because the restore classes move and delete files too, and
+	 * Plugin Check requires those to go through WP_Filesystem rather than
+	 * rename()/rmdir().
+	 */
+	public static function filesystem() {
 		global $wp_filesystem;
 		if ( ! $wp_filesystem ) {
 			require_once ABSPATH . 'wp-admin/includes/file.php';

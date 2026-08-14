@@ -33,6 +33,7 @@ require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db-dump.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-sql-reader.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-file-backup.php';
+require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-file-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-scheduler.php';
@@ -44,6 +45,7 @@ TKVault_Runner::init();
 TKVault_DB_Dump::init();
 TKVault_DB_Restore::init();
 TKVault_File_Backup::init();
+TKVault_File_Restore::init();
 
 register_activation_hook( __FILE__, 'tkvault_activate' );
 register_deactivation_hook( __FILE__, 'tkvault_deactivate' );

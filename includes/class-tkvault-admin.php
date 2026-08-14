@@ -103,7 +103,15 @@ class TKVault_Admin {
 			wp_send_json_error( array( 'message' => __( 'Invalid backup ID.', 'takumi-vault' ) ) );
 		}
 
-		$job = TKVault_DB_Restore::start( $backup_id, $confirm );
+		$record = TKVault_DB::get_backup_by_id( $backup_id );
+		if ( ! $record ) {
+			wp_send_json_error( array( 'message' => __( 'That backup does not exist.', 'takumi-vault' ) ) );
+		}
+
+		$job = 'files' === $record->type
+			? TKVault_File_Restore::start( $backup_id )
+			: TKVault_DB_Restore::start( $backup_id, $confirm );
+
 		if ( is_wp_error( $job ) ) {
 			wp_send_json_error( array( 'message' => $job->get_error_message() ) );
 		}
@@ -119,12 +127,20 @@ class TKVault_Admin {
 			wp_send_json_error( array( 'message' => __( 'You do not have permission to do that.', 'takumi-vault' ) ) );
 		}
 
-		$result = TKVault_DB_Restore::undo();
+		$kind = isset( $_POST['kind'] ) ? sanitize_key( wp_unslash( $_POST['kind'] ) ) : 'db';
+
+		$result = 'files' === $kind ? TKVault_File_Restore::undo() : TKVault_DB_Restore::undo();
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		wp_send_json_success( array( 'message' => __( 'The previous database has been put back.', 'takumi-vault' ) ) );
+		wp_send_json_success(
+			array(
+				'message' => 'files' === $kind
+					? __( 'The replaced files have been put back.', 'takumi-vault' )
+					: __( 'The previous database has been put back.', 'takumi-vault' ),
+			)
+		);
 	}
 
 	public function ajax_cancel_job() {
