@@ -243,18 +243,27 @@ $in_scope = TKVault_DB_Dump::resolve_tables( false );
 sort( $in_scope );
 tkv_check( 'dumped every table in scope', $ours === $in_scope, true );
 
-$reference = '/tmp/tkv-cross.sql';
-exec( 'cd ' . escapeshellarg( ABSPATH ) . ' && wp db export ' . escapeshellarg( $reference ) . ' --tables=' . escapeshellarg( implode( ',', $in_scope ) ) . ' 2>&1', $out, $code );
-tkv_check( 'mysqldump produced a file', 0 === $code && file_exists( $reference ), true );
+// The cross-check shells out to mysqldump, which is the one thing in this
+// suite that needs a process function. The plugin itself must run on a host
+// where those are disabled, and the whole suite gets run that way to prove
+// it, so this comparison steps aside rather than taking the run down with a
+// fatal. It still runs on an ordinary host, which is where it earns its keep.
+if ( ! function_exists( 'exec' ) ) {
+	tkv_info( 'mysqldump cross-check skipped: exec() is disabled here' );
+} else {
+	$reference = '/tmp/tkv-cross.sql';
+	exec( 'cd ' . escapeshellarg( ABSPATH ) . ' && wp db export ' . escapeshellarg( $reference ) . ' --tables=' . escapeshellarg( implode( ',', $in_scope ) ) . ' 2>&1', $out, $code );
+	tkv_check( 'mysqldump produced a file', 0 === $code && file_exists( $reference ), true );
 
-$theirs = array();
-foreach ( file( $reference ) as $line ) {
-	if ( preg_match( '/^CREATE TABLE `([^`]+)`/', $line, $hit ) ) {
-		$theirs[] = $hit[1];
+	$theirs = array();
+	foreach ( file( $reference ) as $line ) {
+		if ( preg_match( '/^CREATE TABLE `([^`]+)`/', $line, $hit ) ) {
+			$theirs[] = $hit[1];
+		}
 	}
+	sort( $theirs );
+	tkv_check( 'same table set as mysqldump', $ours === $theirs, true );
 }
-sort( $theirs );
-tkv_check( 'same table set as mysqldump', $ours === $theirs, true );
 
 foreach ( $fixtures as $table ) {
 	tkv_check(

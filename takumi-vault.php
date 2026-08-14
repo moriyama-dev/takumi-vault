@@ -34,8 +34,6 @@ require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-sql-reader.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-db-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-file-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-file-restore.php';
-require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-backup.php';
-require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-scheduler.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-admin.php';
 

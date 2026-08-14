@@ -200,9 +200,8 @@ c( 'a safety backup was taken', (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$wp
 $safety = $wpdb->get_row( "SELECT * FROM {$wpdb->prefix}tkvault_backups WHERE type = 'db-safety' ORDER BY id DESC LIMIT 1" );
 c( 'its file exists', file_exists( TKVault_Storage::get_store_dir() . '/' . $safety->filename ), true );
 
-$backup_obj = new TKVault_Backup();
-$prunable   = $backup_obj->get_old_backups( 0 );
-$names      = wp_list_pluck( $prunable, 'type' );
+$prunable = TKVault_DB::get_old_backups( 0 );
+$names    = wp_list_pluck( $prunable, 'type' );
 c( 'safety copies are exempt from pruning', in_array( 'db-safety', $names, true ), false );
 
 /* ================================================================= */

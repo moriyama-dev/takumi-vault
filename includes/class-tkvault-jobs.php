@@ -269,7 +269,15 @@ class TKVault_Jobs {
 	}
 
 	public static function finish( $id, $status, $message = '' ) {
-		return self::update(
+		// Read before writing. A job can reach finish() by more than one route
+		// - ordinary completion, a fatal, the attempt cap, a missing handler -
+		// and anything listening for the end of a job must hear about it once,
+		// not once per route.
+		if ( ! self::is_open( self::get( $id ) ) ) {
+			return false;
+		}
+
+		$updated = self::update(
 			$id,
 			array(
 				'status'     => $status,
@@ -277,6 +285,11 @@ class TKVault_Jobs {
 				'lock_token' => null,
 			)
 		);
+
+		// Cancellation has its own hook and does not pass through here.
+		do_action( 'tkvault_job_finished', self::get( $id ), $status );
+
+		return $updated;
 	}
 
 	/**

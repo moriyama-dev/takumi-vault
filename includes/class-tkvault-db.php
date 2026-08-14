@@ -74,6 +74,26 @@ class TKVault_DB {
 		);
 	}
 
+	/**
+	 * Backups beyond the generations the site is keeping, oldest last.
+	 *
+	 * Safety dumps are excluded. They are taken automatically right before a
+	 * restore, and counting them as generations would let a run of restores
+	 * push out the real backups the site is meant to be keeping.
+	 *
+	 * @param int $keep Generations to keep.
+	 * @return array
+	 */
+	public static function get_old_backups( int $keep = 10 ) {
+		global $wpdb;
+		return $wpdb->get_results( // phpcs:ignore WordPress.DB.DirectDatabaseQuery
+			$wpdb->prepare(
+				"SELECT * FROM {$wpdb->prefix}tkvault_backups WHERE type != 'db-safety' ORDER BY created_at DESC LIMIT 9999 OFFSET %d",
+				$keep
+			)
+		);
+	}
+
 	public static function delete_backup_record( int $id ) {
 		global $wpdb;
 		$wpdb->delete( // phpcs:ignore WordPress.DB.DirectDatabaseQuery

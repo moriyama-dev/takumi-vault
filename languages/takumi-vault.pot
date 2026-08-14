@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-14T16:19:54+00:00\n"
+"POT-Creation-Date: 2026-08-14T17:00:08+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: takumi-vault\n"
@@ -36,8 +36,8 @@ msgid "Yoshiro Moriyama (Takumi Web Services)"
 msgstr ""
 
 #: admin/views/backup-list.php:3
-#: includes/class-tkvault-admin.php:226
-#: includes/class-tkvault-admin.php:227
+#: includes/class-tkvault-admin.php:224
+#: includes/class-tkvault-admin.php:225
 msgid "Backups"
 msgstr ""
 
@@ -116,8 +116,8 @@ msgid "Put the replaced files back"
 msgstr ""
 
 #: admin/views/dashboard.php:3
-#: includes/class-tkvault-admin.php:206
-#: includes/class-tkvault-admin.php:207
+#: includes/class-tkvault-admin.php:204
+#: includes/class-tkvault-admin.php:205
 msgid "Takumi Vault"
 msgstr ""
 
@@ -187,7 +187,7 @@ msgid "e.g. before the theme change"
 msgstr ""
 
 #: admin/views/dashboard.php:92
-#: includes/class-tkvault-admin.php:286
+#: includes/class-tkvault-admin.php:284
 msgid "Start backup"
 msgstr ""
 
@@ -204,8 +204,8 @@ msgid "Blocks backups"
 msgstr ""
 
 #: admin/views/preflight.php:21
-#: includes/class-tkvault-admin.php:244
-#: includes/class-tkvault-admin.php:245
+#: includes/class-tkvault-admin.php:242
+#: includes/class-tkvault-admin.php:243
 msgid "Diagnostics"
 msgstr ""
 
@@ -274,13 +274,13 @@ msgid "If loopback requests are blocked, the job advances while this page is ope
 msgstr ""
 
 #: admin/views/preflight.php:95
-#: includes/class-tkvault-admin.php:296
+#: includes/class-tkvault-admin.php:294
 msgid "Run self-test"
 msgstr ""
 
 #: admin/views/settings.php:9
-#: includes/class-tkvault-admin.php:235
-#: includes/class-tkvault-admin.php:236
+#: includes/class-tkvault-admin.php:233
+#: includes/class-tkvault-admin.php:234
 msgid "Settings"
 msgstr ""
 
@@ -325,12 +325,12 @@ msgid "Daily"
 msgstr ""
 
 #: admin/views/settings.php:74
-#: includes/class-tkvault-scheduler.php:30
+#: includes/class-tkvault-scheduler.php:35
 msgid "Weekly"
 msgstr ""
 
 #: admin/views/settings.php:75
-#: includes/class-tkvault-scheduler.php:34
+#: includes/class-tkvault-scheduler.php:39
 msgid "Monthly"
 msgstr ""
 
@@ -370,178 +370,147 @@ msgstr ""
 msgid "Save settings"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:32
-#: includes/class-tkvault-admin.php:57
-#: includes/class-tkvault-admin.php:96
-#: includes/class-tkvault-admin.php:127
-#: includes/class-tkvault-admin.php:149
-#: includes/class-tkvault-admin.php:326
-#: includes/class-tkvault-admin.php:345
-#: includes/class-tkvault-admin.php:368
-#: includes/class-tkvault-admin.php:418
-#: includes/class-tkvault-admin.php:446
-#: includes/class-tkvault-backup.php:8
-#: includes/class-tkvault-restore.php:8
+#: includes/class-tkvault-admin.php:30
+#: includes/class-tkvault-admin.php:55
+#: includes/class-tkvault-admin.php:94
+#: includes/class-tkvault-admin.php:125
+#: includes/class-tkvault-admin.php:147
+#: includes/class-tkvault-admin.php:324
+#: includes/class-tkvault-admin.php:374
+#: includes/class-tkvault-admin.php:402
 #: includes/class-tkvault-runner.php:335
 msgid "You do not have permission to do that."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:70
+#: includes/class-tkvault-admin.php:68
 msgid "The backup directory is downloadable over HTTP. Change the destination before backing up."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:103
-#: includes/class-tkvault-admin.php:352
-#: includes/class-tkvault-admin.php:373
+#: includes/class-tkvault-admin.php:101
+#: includes/class-tkvault-admin.php:329
 msgid "Invalid backup ID."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:108
+#: includes/class-tkvault-admin.php:106
 #: includes/class-tkvault-db-restore.php:61
 #: includes/class-tkvault-file-restore.php:56
 msgid "That backup does not exist."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:140
+#: includes/class-tkvault-admin.php:138
 msgid "The replaced files have been put back."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:141
+#: includes/class-tkvault-admin.php:139
 msgid "The previous database has been put back."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:154
+#: includes/class-tkvault-admin.php:152
 #: includes/class-tkvault-runner.php:340
 msgid "Invalid job."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:178
-#: includes/class-tkvault-admin.php:196
+#: includes/class-tkvault-admin.php:176
+#: includes/class-tkvault-admin.php:194
 msgid "Takumi Vault:"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:179
+#: includes/class-tkvault-admin.php:177
 msgid "the backup directory can be downloaded over HTTP. Anyone who guesses the path can take a copy of your database. Move it to a directory outside the web root."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:181
+#: includes/class-tkvault-admin.php:179
 msgid "Change the destination"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:187
+#: includes/class-tkvault-admin.php:185
 msgid "Takumi Vault: this destination used to be private and is not any more, so scheduled backups have been stopped. Re-enable them once the destination is safe again."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:197
+#: includes/class-tkvault-admin.php:195
 msgid "no backup destination is configured, so backups cannot run."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:199
+#: includes/class-tkvault-admin.php:197
 msgid "Set one now"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:217
-#: includes/class-tkvault-admin.php:218
+#: includes/class-tkvault-admin.php:215
+#: includes/class-tkvault-admin.php:216
 msgid "Dashboard"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:254
-#: includes/class-tkvault-admin.php:304
-#: includes/class-tkvault-admin.php:311
-#: includes/class-tkvault-admin.php:318
+#: includes/class-tkvault-admin.php:252
+#: includes/class-tkvault-admin.php:302
+#: includes/class-tkvault-admin.php:309
+#: includes/class-tkvault-admin.php:316
 msgid "You do not have permission to access this page."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:283
+#: includes/class-tkvault-admin.php:281
 msgid "Restoring will overwrite your current data. Continue?"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:284
+#: includes/class-tkvault-admin.php:282
 msgid "Delete this backup?"
 msgstr ""
 
-#: includes/class-tkvault-admin.php:285
+#: includes/class-tkvault-admin.php:283
 msgid "Working..."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:287
+#: includes/class-tkvault-admin.php:285
 msgid "Done."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:288
+#: includes/class-tkvault-admin.php:286
 msgid "Something went wrong."
 msgstr ""
 
 #. translators: 1: chunks processed so far, 2: total chunks
-#: includes/class-tkvault-admin.php:290
+#: includes/class-tkvault-admin.php:288
 #, php-format
 msgid "Running: %1$d of %2$d"
 msgstr ""
 
 #. translators: 1: chunks processed, 2: total chunks
-#: includes/class-tkvault-admin.php:292
+#: includes/class-tkvault-admin.php:290
 #, php-format
 msgid "Finished: %1$d of %2$d chunks processed."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:293
+#: includes/class-tkvault-admin.php:291
 msgid "Failed."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:294
+#: includes/class-tkvault-admin.php:292
 msgid "Cancelled."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:295
+#: includes/class-tkvault-admin.php:293
 msgid "Starting..."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:339
-msgid "Backup complete."
-msgstr ""
-
-#: includes/class-tkvault-admin.php:362
-msgid "Restore complete."
-msgstr ""
-
-#: includes/class-tkvault-admin.php:385
+#: includes/class-tkvault-admin.php:341
 msgid "Deleted."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:426
-#: includes/class-tkvault-restore.php:13
+#: includes/class-tkvault-admin.php:382
 msgid "Backup not found."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:431
+#: includes/class-tkvault-admin.php:387
 msgid "Backup file not found."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:511
+#: includes/class-tkvault-admin.php:467
 msgid "Enter an absolute path."
-msgstr ""
-
-#: includes/class-tkvault-backup.php:22
-msgid "The backup directory is downloadable over HTTP. Backup cancelled; change the destination first."
-msgstr ""
-
-#: includes/class-tkvault-backup.php:82
-msgid "mysqldump was not found."
-msgstr ""
-
-#: includes/class-tkvault-backup.php:99
-msgid "Database backup failed."
-msgstr ""
-
-#: includes/class-tkvault-backup.php:118
-#: includes/class-tkvault-backup.php:175
-msgid "Could not create the ZIP file."
 msgstr ""
 
 #: includes/class-tkvault-db-dump.php:58
 #: includes/class-tkvault-file-backup.php:64
 #: includes/class-tkvault-storage.php:128
-#: includes/class-tkvault-storage.php:722
+#: includes/class-tkvault-storage.php:729
 msgid "No backup destination is configured."
 msgstr ""
 
@@ -775,6 +744,10 @@ msgstr ""
 msgid "There is no file restore to undo."
 msgstr ""
 
+#: includes/class-tkvault-file-restore.php:521
+msgid "The record of replaced files does not point at this site's backup folder, so it was discarded rather than acted on."
+msgstr ""
+
 #: includes/class-tkvault-preflight.php:58
 #: includes/class-tkvault-preflight.php:61
 #: includes/class-tkvault-preflight.php:63
@@ -919,31 +892,6 @@ msgstr ""
 msgid "Free space could not be read for this path."
 msgstr ""
 
-#: includes/class-tkvault-restore.php:20
-msgid "The backup file does not exist."
-msgstr ""
-
-#: includes/class-tkvault-restore.php:27
-msgid "Invalid file path."
-msgstr ""
-
-#: includes/class-tkvault-restore.php:57
-#: includes/class-tkvault-restore.php:98
-msgid "Could not open the ZIP file."
-msgstr ""
-
-#: includes/class-tkvault-restore.php:65
-msgid "No SQL file was found in the archive."
-msgstr ""
-
-#: includes/class-tkvault-restore.php:72
-msgid "The mysql command was not found."
-msgstr ""
-
-#: includes/class-tkvault-restore.php:89
-msgid "Database restore failed."
-msgstr ""
-
 #: includes/class-tkvault-runner.php:120
 msgid "No handler is registered for this job type."
 msgstr ""
@@ -958,28 +906,32 @@ msgstr ""
 msgid "the process ended without reporting one."
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:26
+#: includes/class-tkvault-scheduler.php:31
 msgid "Every five minutes"
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:79
+#: includes/class-tkvault-scheduler.php:118
 msgid "Scheduled automatic backup"
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:117
+#: includes/class-tkvault-scheduler.php:160
+msgid "The job stopped without reporting a reason."
+msgstr ""
+
+#: includes/class-tkvault-scheduler.php:215
 msgid "Backup completed"
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:118
+#: includes/class-tkvault-scheduler.php:216
 msgid "The scheduled Takumi Vault backup completed successfully."
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:124
+#: includes/class-tkvault-scheduler.php:222
 msgid "Backup failed"
 msgstr ""
 
 #. translators: %s: error message
-#: includes/class-tkvault-scheduler.php:127
+#: includes/class-tkvault-scheduler.php:225
 #, php-format
 msgid ""
 "The Takumi Vault backup failed.\n"
@@ -992,7 +944,7 @@ msgid "Could not open the backup archive."
 msgstr ""
 
 #: includes/class-tkvault-storage.php:135
-#: includes/class-tkvault-storage.php:605
+#: includes/class-tkvault-storage.php:612
 msgid "Could not create the archive sub-directory."
 msgstr ""
 
@@ -1018,22 +970,22 @@ msgstr ""
 msgid "This directory already contains %d item(s) that Takumi Vault did not create. Choose an empty directory instead."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:588
+#: includes/class-tkvault-storage.php:595
 msgid "This directory is served by the web server: a test file placed there was downloadable over HTTP. Backups will not be written here."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:633
+#: includes/class-tkvault-storage.php:640
 msgid "Could not create the backup directory."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:642
+#: includes/class-tkvault-storage.php:649
 msgid "The backup directory is not writable."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:704
+#: includes/class-tkvault-storage.php:711
 msgid "No usable backup destination was found. Set one manually under Takumi Vault > Settings."
 msgstr ""
 
-#: includes/class-tkvault-storage.php:725
+#: includes/class-tkvault-storage.php:732
 msgid "The configured backup directory no longer exists."
 msgstr ""
