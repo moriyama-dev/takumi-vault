@@ -36,7 +36,7 @@ echo
 
 failed=0
 
-for suite in test-job-runner test-db-dump test-file-backup test-db-restore test-file-restore test-scheduler test-permissions test-restore-confirm; do
+for suite in test-cli test-job-runner test-db-dump test-file-backup test-db-restore test-file-restore test-scheduler test-permissions test-restore-confirm; do
 	echo "──────────────────────────────────────────────────────────"
 	echo "  ${suite}"
 	echo "──────────────────────────────────────────────────────────"

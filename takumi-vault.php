@@ -3,7 +3,7 @@
  * Plugin Name: Takumi Vault - Backup & Restore Manager
  * Plugin URI:  https://takumi.ca
  * Description: A clean, client-friendly backup & restore manager for WordPress. Back up your database and files, and restore them with a single click.
- * Version:     1.0.0
+ * Version:     1.1.0
  * Author:      Yoshiro Moriyama (Takumi Web Services)
  * Author URI:  https://takumi.ca
  * License:     GPLv2 or later
@@ -19,7 +19,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TKVAULT_VERSION', '1.0.0' );
+define( 'TKVAULT_VERSION', '1.1.0' );
 define( 'TKVAULT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TKVAULT_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
 define( 'TKVAULT_PLUGIN_FILE', __FILE__ );
@@ -36,6 +36,15 @@ require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-file-backup.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-file-restore.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-scheduler.php';
 require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-admin.php';
+
+// The command line is a first-class way to run this plugin, not an extra: it
+// is the only path with no execution time limit, no loopback request and no
+// dependency on WP-Cron, which is exactly what the hosts this plugin is built
+// for struggle with.
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once TKVAULT_PLUGIN_DIR . 'includes/class-tkvault-cli.php';
+	TKVault_CLI::register();
+}
 
 add_filter( 'cron_schedules', array( 'TKVault_Scheduler', 'add_cron_intervals' ) ); // phpcs:ignore WordPress.WP.CronInterval.ChangeDetected
 

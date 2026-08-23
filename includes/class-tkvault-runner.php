@@ -42,6 +42,27 @@ class TKVault_Runner {
 	/** Fraction of the host's limit we are willing to spend. */
 	const BUDGET_FRACTION = 0.6;
 
+	/**
+	 * Whether continuation has to stay inside this process.
+	 *
+	 * WP-CLI drives a job by calling run() in a loop, so the loopback request
+	 * dispatch() would fire has nobody waiting for it: a second worker would
+	 * either race this loop for the claim, or - on a host whose PHP cannot
+	 * reach the site's own URL from the command line - cost a timeout on every
+	 * hand-over. The command sets this and takes responsibility for calling
+	 * run() until the job is finished.
+	 *
+	 * @var bool
+	 */
+	private static $inline = false;
+
+	/**
+	 * @param bool $on Whether this process will drive the job itself.
+	 */
+	public static function set_inline( $on ) {
+		self::$inline = (bool) $on;
+	}
+
 	public static function init() {
 		// Loopback continuation. Unauthenticated by necessity: the request
 		// carries no cookies. See verify_request() for what stands in for a
@@ -260,6 +281,10 @@ class TKVault_Runner {
 	 * be replayed later.
 	 */
 	public static function dispatch( $job_id ) {
+		if ( self::$inline ) {
+			return false;
+		}
+
 		$job = TKVault_Jobs::get( $job_id );
 		if ( ! TKVault_Jobs::is_open( $job ) ) {
 			return false;
