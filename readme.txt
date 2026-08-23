@@ -1,9 +1,9 @@
 === Takumi Vault - Backup & Restore Manager ===
 Contributors: yoshiromoriyama
-Tags: backup, restore, database, files, schedule
+Tags: backup, restore, database, files, wp-cli
 Requires at least: 6.0
-Tested up to: 7.0
-Stable tag: 1.0.0
+Tested up to: 7.1
+Stable tag: 1.1.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -25,6 +25,7 @@ Takumi Vault lets you back up your WordPress database and files, and restore the
 * Email notifications on completion or failure
 * Backups stored outside the web root by default, with the destination verified before use
 * No external commands: works on hosts where exec() and shell_exec() are disabled
+* WP-CLI commands, so a backup can run from a real cron entry or a deployment script
 
 Developed and maintained by Yoshiro Moriyama, founder of Takumi Web Services
 — a WordPress development studio based in Toronto, Canada.
@@ -46,6 +47,12 @@ By default, backups go to a directory with a random suffix one level above your 
 
 No. Takumi Vault is written entirely in PHP and the WordPress API. It does not call `exec()`, `shell_exec()` or any external command, so it behaves the same on shared hosting where those functions are disabled.
 
+= Can I run backups from the command line? =
+
+Yes. `wp takumi-vault backup --type=all` takes a backup, and `wp takumi-vault restore <id>` puts one back. There is also `wp takumi-vault check`, which reports what the host can and cannot do and exits non-zero if anything would stop a backup, so it can gate a deployment script.
+
+This is worth using where you can. The command line has no browser waiting on it, no execution time limit and no dependency on WP-Cron, which only fires when somebody visits the site. A quiet site with a real cron entry calling `wp takumi-vault backup` is the most reliable way to run this plugin.
+
 = Is it safe to use on a live site? =
 
 Yes. File backups are zipped after the fact, and the maintenance window is kept to a minimum.
@@ -58,10 +65,17 @@ Yes. File backups are zipped after the fact, and the maintenance window is kept 
 
 == Changelog ==
 
+= 1.1.0 =
+* Added WP-CLI commands: backup, restore, undo, list and check.
+* Backups run from the command line complete in one process, with no loopback request and no execution time limit.
+
 = 1.0.0 =
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.1.0 =
+Adds WP-CLI support, so backups can run from cron or a deployment script.
 
 = 1.0.0 =
 Initial release.

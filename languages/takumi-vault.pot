@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Takumi Vault - Backup & Restore Manager 1.0.0\n"
+"Project-Id-Version: Takumi Vault - Backup & Restore Manager 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/takumi-vault\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-14T20:35:36+00:00\n"
+"POT-Creation-Date: 2026-08-23T23:58:03+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: takumi-vault\n"
@@ -393,7 +393,7 @@ msgstr ""
 #: includes/class-tkvault-admin.php:494
 #: includes/class-tkvault-admin.php:544
 #: includes/class-tkvault-admin.php:572
-#: includes/class-tkvault-runner.php:335
+#: includes/class-tkvault-runner.php:360
 msgid "You do not have permission to do that."
 msgstr ""
 
@@ -424,7 +424,7 @@ msgid "The previous database has been put back."
 msgstr ""
 
 #: includes/class-tkvault-admin.php:153
-#: includes/class-tkvault-runner.php:340
+#: includes/class-tkvault-runner.php:365
 msgid "Invalid job."
 msgstr ""
 
@@ -1046,17 +1046,17 @@ msgstr ""
 msgid "Free space could not be read for this path."
 msgstr ""
 
-#: includes/class-tkvault-runner.php:120
+#: includes/class-tkvault-runner.php:141
 msgid "No handler is registered for this job type."
 msgstr ""
 
 #. translators: 1: number of attempts, 2: last error message
-#: includes/class-tkvault-runner.php:236
+#: includes/class-tkvault-runner.php:257
 #, php-format
 msgid "Stopped after %1$d attempts at the same point. Last error: %2$s"
 msgstr ""
 
-#: includes/class-tkvault-runner.php:238
+#: includes/class-tkvault-runner.php:259
 msgid "the process ended without reporting one."
 msgstr ""
 
