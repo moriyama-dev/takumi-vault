@@ -33,7 +33,7 @@ rsync -a \
 	--exclude 'tests/' \
 	--exclude 'dist/' \
 	--exclude 'node_modules/' \
-	--exclude 'README.md' \
+	--exclude '*.md' \
 	--exclude 'languages/*.po' \
 	--exclude 'languages/*.mo' \
 	"${ROOT}/" "${STAGE}/"

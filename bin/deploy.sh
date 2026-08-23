@@ -24,7 +24,7 @@ rsync -a --delete \
 	--exclude 'bin/' \
 	--exclude 'tests/' \
 	--exclude 'dist/' \
-	--exclude 'README.md' \
+	--exclude '*.md' \
 	--exclude 'languages/*.po' \
 	--exclude 'languages/*.mo' \
 	"${ROOT}/" "${TARGET}/"
