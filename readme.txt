@@ -53,6 +53,12 @@ Yes. `wp takumi-vault backup --type=all` takes a backup, and `wp takumi-vault re
 
 This is worth using where you can. The command line has no browser waiting on it, no execution time limit and no dependency on WP-Cron, which only fires when somebody visits the site. A quiet site with a real cron entry calling `wp takumi-vault backup` is the most reliable way to run this plugin.
 
+= What happens when I uninstall it? =
+
+Its settings, its own tables and any scheduled events are removed, along with the copy of the database that a restore kept so it could be undone.
+
+**Your backups are not deleted.** They live outside the plugin's own directory and are yours; removing a plugin should not destroy the thing you installed it to protect. Delete them yourself when you no longer want them.
+
 = Is it safe to use on a live site? =
 
 Yes. File backups are zipped after the fact, and the maintenance window is kept to a minimum.
