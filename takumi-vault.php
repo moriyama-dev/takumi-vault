@@ -1,7 +1,7 @@
 <?php
 /**
  * Plugin Name: Takumi Vault - Backup & Restore Manager
- * Plugin URI:  https://takumi.ca
+ * Plugin URI:  https://github.com/moriyama-dev/takumi-vault
  * Description: A clean, client-friendly backup & restore manager for WordPress. Back up your database and files, and restore them with a single click.
  * Version:     1.1.0
  * Author:      Yoshiro Moriyama (Takumi Web Services)
