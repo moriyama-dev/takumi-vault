@@ -9,6 +9,12 @@ class TKVault_Scheduler {
 	/** Which stage of an automatic run is in flight, and as which job. */
 	const OPTION_RUN = 'tkvault_scheduled_run';
 
+	/** Local time of day an automatic run should start, as HH:MM. */
+	const OPTION_TIME = 'tkvault_schedule_time';
+
+	/** Used when no start time has been chosen: the small hours, local time. */
+	const DEFAULT_TIME = '03:00';
+
 	public function __construct() {
 		add_action( 'tkvault_scheduled_backup', array( $this, 'run_scheduled_backup' ) );
 		add_action( 'tkvault_job_finished', array( $this, 'on_job_finished' ), 10, 2 );
@@ -41,7 +47,19 @@ class TKVault_Scheduler {
 		return $schedules;
 	}
 
-	public function schedule( string $frequency ) {
+	/**
+	 * Turn the schedule on, starting at a chosen time of day.
+	 *
+	 * The first run is placed at the next occurrence of that local time
+	 * rather than at time(), which is what this used to pass. Scheduling from
+	 * "now" made the run recur at whatever moment the administrator happened
+	 * to press Save, so a daily backup configured at lunchtime kept dumping
+	 * the database at lunchtime every day after that.
+	 *
+	 * @param string      $frequency One of daily, tkvault_weekly, tkvault_monthly.
+	 * @param string|null $time      Local HH:MM. Falls back to the stored setting.
+	 */
+	public function schedule( string $frequency, $time = null ) {
 		$this->clear_scheduled_events();
 
 		$valid = array( 'daily', 'tkvault_weekly', 'tkvault_monthly' );
@@ -50,8 +68,65 @@ class TKVault_Scheduler {
 		}
 
 		if ( ! wp_next_scheduled( 'tkvault_scheduled_backup' ) ) {
-			wp_schedule_event( time(), $frequency, 'tkvault_scheduled_backup' );
+			wp_schedule_event( self::next_run_timestamp( $time ), $frequency, 'tkvault_scheduled_backup' );
 		}
+	}
+
+	/**
+	 * The stored start time, always as a valid HH:MM.
+	 */
+	public static function get_time() {
+		return self::sanitize_time( get_option( self::OPTION_TIME, self::DEFAULT_TIME ) );
+	}
+
+	/**
+	 * Normalise a submitted time, or fall back to the default.
+	 *
+	 * Anything unparseable becomes DEFAULT_TIME rather than an error. To
+	 * reject it instead would mean either refusing to save the rest of the
+	 * form or leaving automatic backups off, and neither is what someone who
+	 * mistyped one field was asking for.
+	 *
+	 * @param mixed $time Candidate value.
+	 * @return string HH:MM.
+	 */
+	public static function sanitize_time( $time ) {
+		if ( is_string( $time ) && preg_match( '/^\s*(\d{1,2}):(\d{2})\s*$/', $time, $matches ) ) {
+			$hours   = (int) $matches[1];
+			$minutes = (int) $matches[2];
+			if ( $hours <= 23 && $minutes <= 59 ) {
+				return sprintf( '%02d:%02d', $hours, $minutes );
+			}
+		}
+
+		return self::DEFAULT_TIME;
+	}
+
+	/**
+	 * When the next run at a given local time falls, as a UTC timestamp.
+	 *
+	 * Worked out in the site's own timezone, so a site that asks for 03:00
+	 * keeps getting 03:00 across a daylight-saving change instead of a fixed
+	 * offset from UTC that slips an hour twice a year.
+	 *
+	 * @param string|null $time Local HH:MM. Falls back to the stored setting.
+	 * @return int
+	 */
+	public static function next_run_timestamp( $time = null ) {
+		$time  = ( null === $time ) ? self::get_time() : self::sanitize_time( $time );
+		$parts = explode( ':', $time );
+
+		$zone = wp_timezone();
+		$now  = new DateTimeImmutable( 'now', $zone );
+		$next = $now->setTime( (int) $parts[0], (int) $parts[1], 0 );
+
+		// Never schedule into the past: today's occurrence has usually gone by
+		// the time someone saves the form.
+		if ( $next->getTimestamp() <= $now->getTimestamp() ) {
+			$next = $next->modify( '+1 day' );
+		}
+
+		return $next->getTimestamp();
 	}
 
 	public static function clear_scheduled_events() {

@@ -574,6 +574,7 @@ class TKVault_Admin {
 
 		$backup_dir        = isset( $_POST['tkvault_backup_dir'] ) ? sanitize_text_field( wp_unslash( $_POST['tkvault_backup_dir'] ) ) : '';
 		$schedule          = isset( $_POST['tkvault_schedule'] ) ? sanitize_text_field( wp_unslash( $_POST['tkvault_schedule'] ) ) : 'none';
+		$schedule_time     = isset( $_POST['tkvault_schedule_time'] ) ? sanitize_text_field( wp_unslash( $_POST['tkvault_schedule_time'] ) ) : '';
 		$keep_generations  = isset( $_POST['tkvault_keep_generations'] ) ? absint( $_POST['tkvault_keep_generations'] ) : 10;
 		$notify_email      = isset( $_POST['tkvault_notify_email'] ) ? sanitize_email( wp_unslash( $_POST['tkvault_notify_email'] ) ) : '';
 		$notify_on_success = isset( $_POST['tkvault_notify_on_success'] ) ? 1 : 0;
@@ -589,6 +590,7 @@ class TKVault_Admin {
 		}
 
 		update_option( 'tkvault_schedule', $schedule );
+		update_option( TKVault_Scheduler::OPTION_TIME, TKVault_Scheduler::sanitize_time( $schedule_time ) );
 		update_option( 'tkvault_keep_generations', $keep_generations );
 		update_option( 'tkvault_notify_email', $notify_email );
 		update_option( 'tkvault_notify_on_success', $notify_on_success );

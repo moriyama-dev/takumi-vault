@@ -34,6 +34,7 @@ foreach ( $tkvault_old_tables as $tkvault_entry ) {
 $tkvault_options = array(
 	'tkvault_backup_dir',
 	'tkvault_schedule',
+	'tkvault_schedule_time',
 	'tkvault_keep_generations',
 	'tkvault_notify_email',
 	'tkvault_notify_on_success',

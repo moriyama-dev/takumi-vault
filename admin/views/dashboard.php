@@ -25,11 +25,25 @@
 		<div class="tkvault-card">
 			<h2><?php esc_html_e( 'Next scheduled run', 'takumi-vault' ); ?></h2>
 			<?php
-			$tkvault_next = wp_next_scheduled( 'tkvault_scheduled_backup' );
+			// This card used to be a dead end: it reported "Not scheduled" and
+			// gave no hint that the setting behind it lives on another screen.
+			$tkvault_next         = wp_next_scheduled( 'tkvault_scheduled_backup' );
+			$tkvault_settings_url = admin_url( 'admin.php?page=takumi-vault-settings' );
+
 			if ( $tkvault_next ) {
 				echo '<p>' . esc_html( wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $tkvault_next ) ) . '</p>';
+				printf(
+					'<p><a href="%s">%s</a></p>',
+					esc_url( $tkvault_settings_url ),
+					esc_html__( 'Change the schedule', 'takumi-vault' )
+				);
 			} else {
 				echo '<p>' . esc_html__( 'Not scheduled', 'takumi-vault' ) . '</p>';
+				printf(
+					'<p><a href="%s" class="button">%s</a></p>',
+					esc_url( $tkvault_settings_url ),
+					esc_html__( 'Set up a schedule', 'takumi-vault' )
+				);
 			}
 			?>
 		</div>

@@ -305,7 +305,57 @@ tkv_check( 'and so are the records', (int) $wpdb->get_var( "SELECT COUNT(*) FROM
 update_option( 'tkvault_keep_generations', 10 );
 
 /* ================================================================= */
-tkv_section( '10. no shelling out is left anywhere' );
+tkv_section( '10. the schedule starts at the chosen time of day' );
+
+tkv_check( 'a plain time survives', TKVault_Scheduler::sanitize_time( '03:00' ), '03:00' );
+tkv_check( 'a single-digit hour is padded', TKVault_Scheduler::sanitize_time( '4:05' ), '04:05' );
+tkv_check( 'midnight is a valid choice', TKVault_Scheduler::sanitize_time( '00:00' ), '00:00' );
+tkv_check( 'so is the last minute of the day', TKVault_Scheduler::sanitize_time( '23:59' ), '23:59' );
+tkv_check( 'an impossible hour falls back', TKVault_Scheduler::sanitize_time( '24:00' ), TKVault_Scheduler::DEFAULT_TIME );
+tkv_check( 'so do impossible minutes', TKVault_Scheduler::sanitize_time( '12:60' ), TKVault_Scheduler::DEFAULT_TIME );
+tkv_check( 'and so does nonsense', TKVault_Scheduler::sanitize_time( 'tea time' ), TKVault_Scheduler::DEFAULT_TIME );
+tkv_check( 'and so does a non-string', TKVault_Scheduler::sanitize_time( null ), TKVault_Scheduler::DEFAULT_TIME );
+
+// The point of the whole change: the next run lands on the requested local
+// time, in the future, rather than at whatever moment this happened to run.
+$zone = wp_timezone();
+foreach ( array( '00:00', '03:00', '13:37', '23:59' ) as $wanted ) {
+	$stamp = TKVault_Scheduler::next_run_timestamp( $wanted );
+	$local = ( new DateTimeImmutable( '@' . $stamp ) )->setTimezone( $zone );
+
+	tkv_check( "the next run for {$wanted} is in the future", $stamp > time(), true );
+	tkv_check( "the next run for {$wanted} lands on {$wanted}", $local->format( 'H:i' ), $wanted );
+	tkv_check( "the next run for {$wanted} is within a day", ( $stamp - time() ) <= ( DAY_IN_SECONDS + 2 * HOUR_IN_SECONDS ), true );
+}
+
+// And it has to reach WP-Cron, not merely be computed.
+tkv_reset();
+TKVault_Scheduler::clear_scheduled_events();
+update_option( TKVault_Scheduler::OPTION_TIME, '02:30' );
+
+$scheduler = new TKVault_Scheduler();
+$scheduler->schedule( 'daily' );
+
+$booked = wp_next_scheduled( 'tkvault_scheduled_backup' );
+tkv_check( 'a daily run is booked', (bool) $booked, true );
+tkv_check(
+	'at the time that was asked for',
+	( new DateTimeImmutable( '@' . (int) $booked ) )->setTimezone( $zone )->format( 'H:i' ),
+	'02:30'
+);
+
+$event = wp_get_scheduled_event( 'tkvault_scheduled_backup' );
+tkv_check( 'with a daily recurrence', $event ? $event->schedule : '', 'daily' );
+
+// A frequency the plugin does not offer must leave nothing behind rather
+// than fall through to some default.
+$scheduler->schedule( 'hourly' );
+tkv_check( 'an unsupported frequency books nothing', wp_next_scheduled( 'tkvault_scheduled_backup' ), false );
+
+delete_option( TKVault_Scheduler::OPTION_TIME );
+
+/* ================================================================= */
+tkv_section( '11. no shelling out is left anywhere' );
 
 $found = array();
 foreach ( (array) glob( TKVAULT_PLUGIN_DIR . 'includes/*.php' ) as $file ) {

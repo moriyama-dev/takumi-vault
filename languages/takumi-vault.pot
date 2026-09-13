@@ -2,14 +2,14 @@
 # This file is distributed under the GPLv2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: Takumi Vault - Backup & Restore Manager 1.1.0\n"
+"Project-Id-Version: Takumi Vault - Backup & Restore Manager 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/takumi-vault\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-08-23T23:58:03+00:00\n"
+"POT-Creation-Date: 2026-09-12T00:39:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: takumi-vault\n"
@@ -20,9 +20,8 @@ msgid "Takumi Vault - Backup & Restore Manager"
 msgstr ""
 
 #. Plugin URI of the plugin
-#. Author URI of the plugin
 #: takumi-vault.php
-msgid "https://takumi.ca"
+msgid "https://github.com/moriyama-dev/takumi-vault"
 msgstr ""
 
 #. Description of the plugin
@@ -33,6 +32,11 @@ msgstr ""
 #. Author of the plugin
 #: takumi-vault.php
 msgid "Yoshiro Moriyama (Takumi Web Services)"
+msgstr ""
+
+#. Author URI of the plugin
+#: takumi-vault.php
+msgid "https://takumi.ca"
 msgstr ""
 
 #: admin/views/backup-list.php:3
@@ -92,7 +96,7 @@ msgstr ""
 
 #: admin/views/backup-list.php:90
 #: admin/views/backup-list.php:102
-#: admin/views/dashboard.php:95
+#: admin/views/dashboard.php:109
 #: admin/views/preflight.php:97
 msgid "Cancel"
 msgstr ""
@@ -143,11 +147,19 @@ msgstr ""
 msgid "Next scheduled run"
 msgstr ""
 
-#: admin/views/dashboard.php:32
+#: admin/views/dashboard.php:38
+msgid "Change the schedule"
+msgstr ""
+
+#: admin/views/dashboard.php:41
 msgid "Not scheduled"
 msgstr ""
 
-#: admin/views/dashboard.php:38
+#: admin/views/dashboard.php:45
+msgid "Set up a schedule"
+msgstr ""
+
+#: admin/views/dashboard.php:52
 #: admin/views/settings.php:26
 #: includes/class-tkvault-preflight.php:146
 #: includes/class-tkvault-preflight.php:149
@@ -157,46 +169,46 @@ msgid "Backup destination"
 msgstr ""
 
 #. translators: %s: human-readable file size, e.g. "24 MB"
-#: admin/views/dashboard.php:50
+#: admin/views/dashboard.php:64
 #, php-format
 msgid "Backups on disk: %s"
 msgstr ""
 
 #. translators: %s: human-readable free space, e.g. "3.4 GB"
-#: admin/views/dashboard.php:64
+#: admin/views/dashboard.php:78
 #, php-format
 msgid "Free space: %s"
 msgstr ""
 
-#: admin/views/dashboard.php:70
+#: admin/views/dashboard.php:84
 msgid "Free space: unavailable on this host."
 msgstr ""
 
-#: admin/views/dashboard.php:82
+#: admin/views/dashboard.php:96
 msgid "Back up now"
 msgstr ""
 
-#: admin/views/dashboard.php:84
+#: admin/views/dashboard.php:98
 msgid "What to back up"
 msgstr ""
 
-#: admin/views/dashboard.php:86
+#: admin/views/dashboard.php:100
 msgid "Database"
 msgstr ""
 
-#: admin/views/dashboard.php:87
+#: admin/views/dashboard.php:101
 msgid "Files (wp-content)"
 msgstr ""
 
-#: admin/views/dashboard.php:89
+#: admin/views/dashboard.php:103
 msgid "Note (optional)"
 msgstr ""
 
-#: admin/views/dashboard.php:90
+#: admin/views/dashboard.php:104
 msgid "e.g. before the theme change"
 msgstr ""
 
-#: admin/views/dashboard.php:92
+#: admin/views/dashboard.php:106
 #: includes/class-tkvault-admin.php:286
 msgid "Start backup"
 msgstr ""
@@ -339,48 +351,64 @@ msgid "Daily"
 msgstr ""
 
 #: admin/views/settings.php:74
-#: includes/class-tkvault-scheduler.php:35
+#: includes/class-tkvault-scheduler.php:41
 msgid "Weekly"
 msgstr ""
 
 #: admin/views/settings.php:75
-#: includes/class-tkvault-scheduler.php:39
+#: includes/class-tkvault-scheduler.php:45
 msgid "Monthly"
 msgstr ""
 
 #: admin/views/settings.php:91
+msgid "Start time"
+msgstr ""
+
+#. translators: %s: the site's current local time, e.g. "20:45"
+#: admin/views/settings.php:100
+#, php-format
+msgid "Automatic backups start at this time in the site timezone, where it is now %s. Pick an hour when the site is quiet."
+msgstr ""
+
+#. translators: %s: date and time of the next automatic backup
+#: admin/views/settings.php:113
+#, php-format
+msgid "Next run: %s"
+msgstr ""
+
+#: admin/views/settings.php:124
 msgid "Backups to keep"
 msgstr ""
 
-#: admin/views/settings.php:97
+#: admin/views/settings.php:130
 msgid "Older backups beyond this count are deleted automatically."
 msgstr ""
 
-#: admin/views/settings.php:102
+#: admin/views/settings.php:135
 msgid "Keep the previous database for"
 msgstr ""
 
-#: admin/views/settings.php:108
+#: admin/views/settings.php:141
 msgid "days"
 msgstr ""
 
-#: admin/views/settings.php:110
+#: admin/views/settings.php:143
 msgid "After a restore, the database it replaced is kept so the restore can be undone. It is a second full copy, so it roughly doubles the size of the database until it is removed. Use 0 to remove it immediately, or -1 to keep it indefinitely."
 msgstr ""
 
-#: admin/views/settings.php:116
+#: admin/views/settings.php:149
 msgid "Notification email"
 msgstr ""
 
-#: admin/views/settings.php:125
+#: admin/views/settings.php:158
 msgid "Success notices"
 msgstr ""
 
-#: admin/views/settings.php:130
+#: admin/views/settings.php:163
 msgid "Email me when a backup finishes"
 msgstr ""
 
-#: admin/views/settings.php:136
+#: admin/views/settings.php:169
 msgid "Save settings"
 msgstr ""
 
@@ -614,7 +642,7 @@ msgstr ""
 msgid "Backup file not found."
 msgstr ""
 
-#: includes/class-tkvault-admin.php:637
+#: includes/class-tkvault-admin.php:639
 msgid "Enter an absolute path."
 msgstr ""
 
@@ -1060,32 +1088,32 @@ msgstr ""
 msgid "the process ended without reporting one."
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:31
+#: includes/class-tkvault-scheduler.php:37
 msgid "Every five minutes"
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:118
+#: includes/class-tkvault-scheduler.php:193
 msgid "Scheduled automatic backup"
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:160
+#: includes/class-tkvault-scheduler.php:235
 msgid "The job stopped without reporting a reason."
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:215
+#: includes/class-tkvault-scheduler.php:290
 msgid "Backup completed"
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:216
+#: includes/class-tkvault-scheduler.php:291
 msgid "The scheduled Takumi Vault backup completed successfully."
 msgstr ""
 
-#: includes/class-tkvault-scheduler.php:222
+#: includes/class-tkvault-scheduler.php:297
 msgid "Backup failed"
 msgstr ""
 
 #. translators: %s: error message
-#: includes/class-tkvault-scheduler.php:225
+#: includes/class-tkvault-scheduler.php:300
 #, php-format
 msgid ""
 "The Takumi Vault backup failed.\n"

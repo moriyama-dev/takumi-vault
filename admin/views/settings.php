@@ -88,6 +88,39 @@ $tkvault_value     = $tkvault_error && ! empty( $tkvault_error['attempted'] ) ? 
 			</tr>
 			<tr>
 				<th scope="row">
+					<label for="tkvault_schedule_time"><?php esc_html_e( 'Start time', 'takumi-vault' ); ?></label>
+				</th>
+				<td>
+					<input type="time" id="tkvault_schedule_time" name="tkvault_schedule_time"
+						value="<?php echo esc_attr( TKVault_Scheduler::get_time() ); ?>">
+					<p class="description">
+						<?php
+						printf(
+							/* translators: %s: the site's current local time, e.g. "20:45" */
+							esc_html__( 'Automatic backups start at this time in the site timezone, where it is now %s. Pick an hour when the site is quiet.', 'takumi-vault' ),
+							esc_html( wp_date( 'H:i' ) )
+						);
+						?>
+					</p>
+					<?php
+					$tkvault_next = wp_next_scheduled( 'tkvault_scheduled_backup' );
+					if ( $tkvault_next ) {
+						printf(
+							'<p class="description">%s</p>',
+							esc_html(
+								sprintf(
+									/* translators: %s: date and time of the next automatic backup */
+									__( 'Next run: %s', 'takumi-vault' ),
+									wp_date( get_option( 'date_format' ) . ' ' . get_option( 'time_format' ), $tkvault_next )
+								)
+							)
+						);
+					}
+					?>
+				</td>
+			</tr>
+			<tr>
+				<th scope="row">
 					<label for="tkvault_keep_generations"><?php esc_html_e( 'Backups to keep', 'takumi-vault' ); ?></label>
 				</th>
 				<td>

@@ -3,7 +3,7 @@ Contributors: yoshiromoriyama
 Tags: backup, restore, database, files, wp-cli
 Requires at least: 6.0
 Tested up to: 7.1
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -71,6 +71,10 @@ Yes. File backups are zipped after the fact, and the maintenance window is kept 
 
 == Changelog ==
 
+= 1.2.0 =
+* Automatic backups now run at a time of day you choose, instead of at whatever time the setting was saved.
+* The dashboard links straight to the schedule, so it is no longer a screen that reports "Not scheduled" and offers no way to change it.
+
 = 1.1.0 =
 * Added WP-CLI commands: backup, restore, undo, list and check.
 * Backups run from the command line complete in one process, with no loopback request and no execution time limit.
@@ -79,6 +83,9 @@ Yes. File backups are zipped after the fact, and the maintenance window is kept 
 * Initial release.
 
 == Upgrade Notice ==
+
+= 1.2.0 =
+Scheduled backups can be given a start time, so they can be moved off the middle of the working day.
 
 = 1.1.0 =
 Adds WP-CLI support, so backups can run from cron or a deployment script.
