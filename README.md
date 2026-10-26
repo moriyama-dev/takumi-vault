@@ -9,6 +9,10 @@ Built to hand to a non-technical client: one admin menu, one button, backups sto
 ![License](https://img.shields.io/badge/License-GPLv2-blue?style=flat)
 ![Version](https://img.shields.io/badge/version-1.1.0-green?style=flat)
 
+![Takumi Vault dashboard: last backup, schedule and backup destination](docs/images/dashboard.png)
+
+![Backup list with download and one-click restore](docs/images/backups.png)
+
 ---
 
 ## Why this exists
